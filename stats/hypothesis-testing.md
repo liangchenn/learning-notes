@@ -48,7 +48,7 @@ print(f"Empirical   value: {samples.var()}")
 ```
 
     Theoratical value: 0.0475
-    Empirical   value: 0.044791
+    Empirical   value: 0.045696
 
 
 ## Limiting Distribution
@@ -157,21 +157,27 @@ Given the null hypothesis is true we construct the theoratical distribution for 
 
 
 ```python
-smean = 0.075
-svar = smean * (1-smean) / size
-sstd = np.sqrt(sstd)
+true_mean = 0.065
+true_se = np.sqrt(true_mean * (1-true_mean) / size)
 ```
 
 
 ```python
-x = np.linspace(smean - 3 * sstd, smean + 3 * sstd)
-y = norm.pdf(x, loc=smean, scale=sstd)
+x = np.linspace(true_mean - 4 * true_se, true_mean + 4 * true_se)
+y = norm.pdf(x, loc=true_mean, scale=true_se)
+
+x_fill = np.linspace(true_mean - 4 * true_se, samples.mean())
+y_fill = norm.pdf(x_fill, loc=true_mean, scale=true_se)
 ```
 
 
 ```python
 sns.lineplot(x=x, y=y, label='theoratical')
 plt.axvline(x=samples.mean(), linestyle='-', color='salmon', label='observed mean')
+plt.axvline(x=true_mean, color='lightgray', label='H0 mean')
+plt.fill_between(x_fill, y_fill, color='skyblue', alpha=0.3, label='extreme prob.')
+
+plt.title(r"$\bar X_n$ Sampling Dist. | H0")
 plt.legend()
 plt.show()
 ```
@@ -182,70 +188,119 @@ plt.show()
     
 
 
-Obtain the probability $Pr(X <= observed\_mean | H0)$
+The shaded area is the probability of observing a realized sample mean more extreme than the current one, which is the p-value.
+
+The smaller it gets, the more likely the null hypothesis to be false.
+Then we could set a conventional threshold (e.g. 5%), then use the threshold to reject the H0.
+
+We use conventional 5% threshold.
+For two-sided test, it will be 2.5% for each side.
+
+Now we could obtain the probability $Pr(X <= observed\_mean | H0)$
 
 
 ```python
-norm.cdf(samples.mean(), loc=smean, scale=sstd)
+pvalue = norm.cdf(samples.mean(), loc=true_mean, scale=true_se)
 ```
 
 
+```python
+print(f"The p-value is: {pvalue:.4f}")
+
+if pvalue <= 0.025:
+    print(f"Result: Reject H0")
+else:
+    print(f"Result: Could not reject H0")
+```
+
+    The p-value is: 0.0146
+    Result: Reject H0
 
 
-    0.3660763734790762
 
+```python
 
+```
 
-### Compare to the test functions
+### Compare to the test functions from Python modules
 
 
 ```python
 from statsmodels.stats.proportion import proportions_ztest
 from scipy.stats import ttest_1samp
+from scipy.stats.distributions import t
 ```
 
 
 ```python
-ttest_1samp(samples, popmean=0.075)
+ttest_1samp(samples, popmean=true_mean, alternative='two-sided')
 ```
 
 
 
 
-    Ttest_1sampResult(statistic=-4.181628010126493, pvalue=3.1483606196336255e-05)
-
-
-
-
-```python
-proportions_ztest(samples.sum(), len(samples), value=0.075)
-```
-
-
-
-
-    (-4.183720393549963, 2.867767991818581e-05)
+    Ttest_1sampResult(statistic=-2.513579192534593, pvalue=0.012107660264868304)
 
 
 
 
 ```python
-smean = samples.mean() - 0.075
-sstd = samples.std() / np.sqrt(len(samples))
+proportions_ztest(samples.sum(), len(samples), value=true_mean, alternative='two-sided')
+```
+
+
+
+
+    (-2.5148369255092393, 0.01190874531462058)
+
+
+
+Or we could implement the z-statistic on our own
+
+
+```python
+t_statistic = (samples.mean() - true_mean) / (samples.std() / np.sqrt(len(samples)))
+
+z_statistic = (samples.mean() - true_mean) / np.sqrt(samples.mean() * (1-samples.mean()) / len(samples)
 ```
 
 
 ```python
-sns.lineplot(x=(x:=np.linspace(-4, 4)), y=norm.pdf(x, loc=0, scale=1), label='theoratical')
-plt.axvline(x=samples.mean() - 0.075, linestyle='-', color='salmon', label='observed mean')
-plt.legend()
-plt.show()
+z_statistic, t_statistic
 ```
 
 
-    
-![png](hypothesis-testing_files/hypothesis-testing_27_0.png)
-    
 
 
-### [ToDo] Why the results are different
+    (-2.5148369255092393, -2.5148369255092393)
+
+
+
+
+```python
+norm.cdf(z_statistic, loc=0, scale=1) * 2 # for two-sided test
+```
+
+
+
+
+    0.01190874531462058
+
+
+
+
+```python
+t.cdf(t_statistic, df=len(samples), loc=0, scale=true_se) * 2 # for two-sided test
+```
+
+
+
+
+    0.0
+
+
+
+
+```python
+
+```
