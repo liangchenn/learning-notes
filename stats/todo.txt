@@ -1,0 +1,5 @@
+[hypothesis testing]
+- Why p-value will be different when directly looking at the dist. and the z-statistic result
+  - Is it two-sided or one-sided difference
+
+- Add two-sampled test
