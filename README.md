@@ -1,2 +1,2 @@
 # learning-notes
-Take some random notes while reading
+Just some notes and stuff
