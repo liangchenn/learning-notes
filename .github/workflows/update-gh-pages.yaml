@@ -1,0 +1,18 @@
+name: Sync gh-pages branch with main
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Push to gh-pages
+        run: |
+          git checkout -B gh-pages
+          git push -f origin gh-pages
