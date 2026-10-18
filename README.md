@@ -5,7 +5,7 @@ Just some notes and stuff
 
 - [Hypothesis Testing](stats/hypothesis-testing.html)
 
-### STAT 559 — Measure Theory
+### Measure Theory
 
 LaTeX-generated lecture notes (PDF).
 
@@ -18,7 +18,7 @@ LaTeX-generated lecture notes (PDF).
 - [Note 6: Random Variables, Laws, and Independence](stats/stat559/stat559-note6.pdf)
 - [Note 7: Modes of Convergence and Uniform Integrability](stats/stat559/stat559-note7.pdf)
 
-### STAT 581 — Advanced Statistical Theory
+### Advanced Statistical Theory
 
 LaTeX-generated lecture notes (PDF).
 
