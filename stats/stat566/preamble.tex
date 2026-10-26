@@ -1,0 +1,42 @@
+\documentclass[12pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,booktabs,array}
+\usepackage{microtype}
+\usepackage{newcomputermodern}
+\usepackage[most]{tcolorbox}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning}
+\usepackage[hidelinks]{hyperref}
+\usepackage{enumitem,needspace}
+\setcounter{tocdepth}{1}
+\AddToHook{cmd/section/before}{\Needspace{7\baselineskip}}
+\AddToHook{cmd/subsection/before}{\Needspace{5\baselineskip}}
+\setlist{itemsep=2pt,topsep=4pt}
+\newtcolorbox{remarkbox}[1][Note]{colback=gray!5,colframe=gray!60,title={#1},fonttitle=\bfseries,arc=2mm,boxrule=.6pt,breakable}
+\newtcolorbox{correction}[1][Correction]{colback=red!3,colframe=red!55!black,title={#1},fonttitle=\bfseries,arc=2mm,boxrule=.6pt,breakable}
+\newtcolorbox{todo}[1][TODO from the manuscript]{colback=yellow!8,colframe=orange!70!black,title={#1},fonttitle=\bfseries,arc=2mm,boxrule=.6pt,breakable}
+\newtcolorbox{supplement}[1][Lecture supplement]{colback=blue!3,colframe=blue!50!black,title={#1},fonttitle=\bfseries,arc=2mm,boxrule=.6pt,breakable}
+\newcommand{\E}{\mathbb E}
+\newcommand{\Prob}{\mathbb P}
+\newcommand{\Var}{\operatorname{Var}}
+\newcommand{\Cov}{\operatorname{Cov}}
+\newcommand{\pa}{\operatorname{Pa}}
+\newcommand{\de}{\operatorname{De}}
+\newcommand{\an}{\operatorname{An}}
+\newcommand{\nd}{\operatorname{Nd}}
+\newcommand{\doo}{\operatorname{do}}
+\newcommand{\ind}{\mathrel{\perp\!\!\!\perp}}
+\newcommand{\nind}{\mathrel{\not\!\perp\!\!\!\perp}}
+\newcommand{\dsep}{\mathrel{\perp\!\!\!\perp}_{d}}
+\newcommand{\source}[1]{\par\smallskip{\small\color{gray!80!black}\textit{Manuscript: #1.}}\par}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+\setlength{\emergencystretch}{2em}
+\tikzset{v/.style={circle,draw=blue!45!black,fill=blue!3,minimum size=8mm,inner sep=2pt},edge/.style={-{Stealth[length=2mm]},thick}}
+\author{Liang-Cheng Chen}
+\date{Spring 2026\quad /\quad Typeset October 25, 2026}
+% TASK.md explicitly requests double-dollar delimiters for INLINE math.
+% Make the dollar character active so paired $$...$$ means ensuremath,
+% not TeX display math. Display formulas use equation/align exclusively.
+\catcode`\$=\active
+\protected\long\def$$#1$${\ensuremath{#1}}

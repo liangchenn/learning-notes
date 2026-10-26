@@ -1,0 +1,72 @@
+2026-10-25 — STAT 566 handwritten-notes conversion
+
+Scope: TASK.md; notes/stat566-note01.pdf (9 pp), stat566-note02.pdf (22 pp),
+stat566-note3.pdf (12 pp), stat566-note5.pdf (10 pp). Total 53 source pages.
+No source Note 4 was supplied. Original filenames/numbering retained.
+
+Input PDFs contain a noisy recognition text layer. All source pages were also
+rendered and visually inspected; mathematical content was edited using the images
+and local lecture PDFs, not blindly copied from OCR. Chinese annotations translated
+to English. Repeated material consolidated; diagrams rendered as vector diagrams
+or explicit graph edge/path lists. SOURCE-MAP.md accounts for every source page.
+
+Outputs: tex-notes/{stat566-note01,stat566-note02,stat566-note3,stat566-note5}.tex
+and matching PDFs; stat566-all.tex/PDF; shared preamble and chapter sources;
+build.py, README.md, SOURCE-MAP.md, LOG.log. The full source tree is reproducible.
+
+Major corrections:
+- Outcome response types versus IV treatment compliance types.
+- Consistency is Y=Y(A), not independence from intention; separate exchangeability.
+- Neyman finite-population versus within-arm variances; conservative in expectation;
+  centered asymptotic statistic, not an automatically exact normal statistic.
+- MTR upper bound retained at the data-dependent Manski upper endpoint.
+- MTS alone does not give lower bound zero; MTR+MTS does.
+- Fork/collider arrow labels interchanged in handwritten note02 p. 5.
+- Four-node graph implies Y independent of A given Z,M, not given M alone.
+- Mutual independent SCM noise implies Markov, not automatically faithfulness.
+- Markov equivalence, observational versus causal semantics, and intervention
+  uniqueness claims qualified. Back-door identification does not need faithfulness.
+- Pooled t-test denominator includes arm-size factors.
+- Truncated factorization evaluated at intervention; no stray indicator in marginal Y law.
+- Baseline adjustment can cause M-bias with latent causes; valid sets need path checks.
+- Wright causal path formula separated from covariance/error variance formula.
+- IPW supports continuous outcomes; logistic propensity response is treatment A.
+- Symmetric score clipping; clipping versus population-changing trimming.
+- ATT averages only over treated observations; distinguish baseline CATE.
+- Conditional IV includes controls in both stages; IV SEs need proper inference.
+- IV exclusion versus exogeneity; first-stage heuristics and DWH non-rejection qualified.
+- Linear homogeneous IV effect versus binary-instrument LATE.
+
+TODO handling / limitations:
+- Yellow boxes preserve all explicit TODO marks, including reread consistency,
+  Fisher, timestamps 10:08 and 9:02, MTR bounds, SCM, IPW intuition/proof,
+  H ajek intuition, and standardized mean differences.
+- Timestamp-only missing recording segments cannot be reconstructed exactly.
+  Core lecture content is supplied and labeled, without pretending to recover audio.
+- The abbreviation EQC? on note01 p. 3 is not confidently deciphered; preserved.
+- DID for IV — Ting Ye on note5 p. 6 remains an attributed reading prompt.
+- Note3 pp. 11–12 and note5 pp. 8–9 have headings/blank space only; additions are
+  labeled lecture supplements. No unprovided handwriting was invented.
+- TASK.md requests $$ for inline math, although standard TeX uses it for displays.
+  The preamble defines active paired $$ delimiters as ensuremath, permitting the
+  requested source syntax and true inline layout. Displays use equation/align.
+- The template's two font packages were replaced by one coherent New Computer
+  Modern text/math setup. Margins, 12pt size, and remark-box style retained.
+- PDF skill marker initially had a stale plugin-version path after a live plugin
+  update. Located the installed marker and successfully ran it once.
+- Initial sandbox compilation failed because LuaLaTeX could not write its font cache;
+  reran compilation through the required permission mechanism.
+
+Verification and publication status will be appended below.
+
+Final verification:
+- All five documents compiled with LuaLaTeX; repeated passes until references settled.
+- Final logs: zero LaTeX/hyperref warnings, overfull boxes, missing glyphs,
+  undefined references, or undefined citations.
+- Rendered and visually reviewed every final individual PDF page and all 34 pages
+  of the combined volume; formulas, vector diagrams, boxes, contents, and pagination
+  are readable without clipping/overlap. Short final reference pages are intentional.
+- Final page counts: Note 1 = 7, Note 2 = 12, Note 3 = 8, Note 5 = 8;
+  combined volume = 34 pages (shared front matter and continuous numbering).
+- Inline delimiter convention checked; all displayed math uses equation/align.
+- Remote fetch confirmed learning-notes/main had no new upstream commits to merge.

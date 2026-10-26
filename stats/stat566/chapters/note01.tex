@@ -1,0 +1,165 @@
+\section{Potential outcomes and causal estimands}
+\source{stat566-note01, pp. 1--2 (April 2)}
+Let $$A\in\{0,1\}$$ denote treatment and $$Y(a)$$ the potential outcome under treatment $$a$$. The observed outcome is $$Y=Y(A)$$ under consistency. Define
+\begin{align}
+\tau=\operatorname{ATE}&=\E[Y(1)-Y(0)],\\
+\operatorname{ATT}&=\E[Y(1)-Y(0)\mid A=1],\\
+\operatorname{ATC}&=\E[Y(1)-Y(0)\mid A=0].
+\end{align}
+Writing $$p=\Prob(A=1)$$, the law of total expectation gives
+\begin{equation}
+\operatorname{ATE}=p\operatorname{ATT}+(1-p)\operatorname{ATC}.
+\end{equation}
+These are population targets, not estimators. Their numerical values need not agree in an observational study.
+
+For a binary outcome, classify units by their pair of potential outcomes:
+\begin{center}
+\begin{tabular}{lccc}\toprule
+Outcome response type & $$Y(0)$$ & $$Y(1)$$ & Effect\\\midrule
+Always has outcome & 1&1&0\\
+Never has outcome & 0&0&0\\
+Helped / responder & 0&1&1\\
+Harmed & 1&0&$$-1$$\\\bottomrule
+\end{tabular}
+\end{center}
+Thus
+\begin{align}
+\E[Y(1)]&=\Prob(\text{always})+\Prob(\text{helped}),\\
+\E[Y(0)]&=\Prob(\text{always})+\Prob(\text{harmed}),\\
+\tau&=\Prob(\text{helped})-\Prob(\text{harmed}),\\
+\operatorname{ATT}&=\Prob(\text{helped}\mid A=1)-\Prob(\text{harmed}\mid A=1).
+\end{align}
+\begin{correction}[Response types versus compliance types]
+The manuscript calls the first two rows ``always-taker'' and ``never-taker.'' Here the table concerns outcomes, so ``always has outcome'' and ``never has outcome'' are more precise. IV compliance types instead concern potential \emph{treatment uptake}, $$A(0),A(1)$$; see Note 5.
+\end{correction}
+\begin{remarkbox}[Question in the margin: what if the harmed proportion is known?]
+The identity for $$\tau$$ is valid irrespective of whether either response proportion is known. Knowing the harmed proportion alone does not identify the helped proportion. If randomization identifies $$\tau$$ and the harmed proportion is supplied separately, then their sum identifies the helped proportion. Even an RCT generally identifies only the marginal distributions of $$Y(0)$$ and $$Y(1)$$, not their joint distribution.
+\end{remarkbox}
+
+\section{SUTVA, consistency, and randomization}
+\source{stat566-note01, pp. 2--4}
+SUTVA (stable unit treatment value assumption) packages no interference and the absence of relevant hidden treatment versions. The course also spells out consistency separately.
+\begin{enumerate}
+\item \textbf{Treatment variation irrelevance.} If versions $$k$$ and $$k'$$ represent the same treatment level $$a$$, then $$Y_i(a,k)=Y_i(a,k')$$. Different doses should not be silently treated as equivalent versions if they change the outcome.
+\item \textbf{Consistency.} If $$A_i=a$$, then $$Y_i=Y_i(a)$$. Equivalently,
+\begin{equation}
+Y_i=A_iY_i(1)+(1-A_i)Y_i(0).
+\end{equation}
+\item \textbf{No interference.} A unit's potential outcome depends on its own treatment, not the treatment assignments to other units:
+\begin{equation}
+Y_i(a_1,\ldots,a_n)=Y_i(a_i).
+\end{equation}
+Vaccination is a counterexample when other people's vaccination protects an untreated person.
+\end{enumerate}
+\begin{todo}[TODO / questions, p. 3: consistency and ``EQC?'']
+The original asks to reread the reference and contains the shorthand ``EQC?'' twice; that abbreviation cannot be reliably expanded. The relevant equality is
+\begin{equation}
+\E[Y(1)\mid A=1]=\E[Y\mid A=1],
+\end{equation}
+which follows from consistency alone. In contrast, replacing $$\E[Y(1)\mid A=1]$$ by $$\E[Y(1)]$$ needs exchangeability. The ambiguous abbreviation is preserved here rather than guessed.
+\end{todo}
+
+In a randomized experiment, treatment assignment is independent of potential outcomes (and baseline covariates under simple randomization):
+\begin{equation}
+A\ind (Y(0),Y(1),Z).
+\end{equation}
+Consequently, for $$a=0,1$$ with positive assignment probability,
+\begin{align}
+\E[Y(a)]&=\E[Y(a)\mid A=a]=\E[Y\mid A=a],\\
+\tau&=\E[Y\mid A=1]-\E[Y\mid A=0].
+\end{align}
+Population ATE, ATT, and ATC then agree. A realized randomized sample need not have exact balance: baseline summary statistics diagnose chance imbalance but do not prove or disprove the assignment mechanism.
+\begin{correction}[Consistency is not independence from intention]
+Consistency is the equality $$Y=Y(A)$$, not an independence statement about a person's intention to receive treatment. Random assignment of an offer identifies an intention-to-treat effect; noncompliance creates a separate question about actual treatment receipt.
+\end{correction}
+
+\section{Neyman estimation and Fisher randomization inference}
+\source{stat566-note01, pp. 4--5; Lecture 1, randomization inference}
+For a completely randomized assignment of $$n_1$$ treated and $$n_0=n-n_1$$ controls, the difference in sample means estimates the finite-population ATE:
+\begin{align}
+\widehat\tau&=\overline Y_1-\overline Y_0
+=\frac1{n_1}\sum_{i:A_i=1}Y_i-\frac1{n_0}\sum_{i:A_i=0}Y_i,\\
+\tau_n&=\frac1n\sum_{i=1}^n\{Y_i(1)-Y_i(0)\},\qquad
+\E_A[\widehat\tau]=\tau_n.
+\end{align}
+Here the potential outcomes are fixed; randomness is over the treatment assignments. Define finite-population variances using all $$n$$ units:
+\begin{align}
+S_a^2&=\frac1{n-1}\sum_{i=1}^n\{Y_i(a)-\overline Y(a)\}^2,\\
+S_\tau^2&=\frac1{n-1}\sum_{i=1}^n\{Y_i(1)-Y_i(0)-\tau_n\}^2.
+\end{align}
+Then
+\begin{equation}
+\Var_A(\widehat\tau)=\frac{S_1^2}{n_1}+\frac{S_0^2}{n_0}-\frac{S_\tau^2}{n}.
+\end{equation}
+The within-arm sample variances $$s_a^2$$ give the usual conservative estimator
+\begin{equation}
+\widehat V=\frac{s_1^2}{n_1}+\frac{s_0^2}{n_0},\qquad
+\E_A[\widehat V]=\Var_A(\widehat\tau)+\frac{S_\tau^2}{n}.
+\end{equation}
+\begin{correction}[Variance notation and the asymptotic pivot]
+The manuscript mixes sample variances computed within the observed arms with the finite-population variances in Neyman's exact formula. Moreover, $$\widehat V\geq\Var_A(\widehat\tau)$$ is not guaranteed for every realized sample; conservativeness is in expectation. A central limit theorem concerns the centered statistic $$(\widehat\tau-\tau_n)/\sqrt{\Var_A(\widehat\tau)}$$. Using $$\widehat V$$ typically gives conservative large-sample confidence intervals under suitable regularity conditions, rather than an automatically exact standard normal pivot.
+\end{correction}
+
+Fisher's sharp null is
+\begin{equation}
+H_0^{\mathrm{sharp}}:\quad Y_i(1)=Y_i(0)\quad\text{for every }i.
+\end{equation}
+It implies $$\tau_n=0$$, but the converse fails: positive and negative individual effects can average to zero.
+\begin{todo}[TODO, p. 5: reread Fisher's exact test / fill notes up to 10:08]
+Under the sharp null every missing potential outcome is imputed by the observed outcome. Choose a statistic such as $$T=\overline Y_1-\overline Y_0$$, enumerate assignments allowed by the original design, recompute $$T$$ for each, and calculate the fraction at least as extreme as the observed statistic:
+\begin{equation}
+p_{\mathrm{exact}}=\frac{1}{|\mathcal A|}\sum_{a\in\mathcal A}
+\mathbf1\{|T(a,Y)|\geq|T(A^{\mathrm{obs}},Y)|\}.
+\end{equation}
+This expression assumes equally likely assignments. Use design probabilities otherwise. Monte Carlo sampling of assignments approximates enumeration. The timestamp identifies a missing recording segment; its exact contents are unavailable, so this box supplies the lecture's core method rather than reconstructing an unheard segment.
+\end{todo}
+
+\section{Partial identification and Manski bounds}
+\source{stat566-note01, pp. 6--7 (April 7); Lecture 2, Sections 1--2}
+Identification asks what is determined by the population observed-data law; estimation approximates that quantity from a sample. Without exchangeability, the ATE need not be point identified. Assume both potential outcomes lie in a known interval $$[L,U]$$, and write $$\mu_a=\E[Y\mid A=a]$$, $$p=\Prob(A=1)\in(0,1)$$, and $$q=1-p$$. Consistency gives
+\begin{align}
+\E[Y(1)]&=p\mu_1+q\E[Y(1)\mid A=0],\\
+\E[Y(0)]&=q\mu_0+p\E[Y(0)\mid A=1].
+\end{align}
+The missing counterfactual means can range over $$[L,U]$$, so
+\begin{align}
+p\mu_1+qL&\leq\E[Y(1)]\leq p\mu_1+qU,\\
+q\mu_0+pL&\leq\E[Y(0)]\leq q\mu_0+pU.
+\end{align}
+Subtract opposite endpoints to obtain sharp bounds:
+\begin{align}
+\tau_L&=p(\mu_1-U)+q(L-\mu_0),\\
+\tau_U&=p(\mu_1-L)+q(U-\mu_0),\\
+\tau&\in[\tau_L,\tau_U],\qquad \tau_U-\tau_L=U-L.
+\end{align}
+Sharp means every endpoint is attainable by some potential-outcome distribution consistent with the observed law and maintained assumptions. Bounded support alone gives $$[L-U,U-L]$$, of width $$2(U-L)$$; observing treatment and outcome cuts that width in half.
+\begin{remarkbox}[Questions, p. 7: can the lower endpoint be zero?]
+Yes, $$L=0$$ is allowed; use whatever support is substantively justified. For binary outcomes $$[L,U]=[0,1]$$, the trivial ATE range is $$[-1,1]$$, but Manski's data-dependent interval has width 1. For $$p=.4$$, $$\mu_1=.7$$, $$\mu_0=.5$$, the interval is $$[-.42,.58]$$. The naive contrast .2 does not identify the ATE. A bounded \emph{observed} outcome alone does not establish bounds on unobserved potential outcomes without the corresponding maintained support restriction.
+\end{remarkbox}
+
+\section{Monotone treatment response and selection}
+\source{stat566-note01, pp. 8--9; Lecture 2, Section 3}
+\textbf{MTR} (monotone treatment response) assumes $$Y_i(1)\geq Y_i(0)$$ for every unit. If larger values are beneficial, it rules out harm. This is a substantive restriction, not a general property of treatments. It implies
+\begin{align}
+\E[Y(1)\mid A=0]&\geq\mu_0,\\
+\E[Y(0)\mid A=1]&\leq\mu_1,\\
+\tau&\in[0,\tau_U].
+\end{align}
+\begin{todo}[TODO, p. 8: complete the MTR bound]
+The upper endpoint remains $$p(\mu_1-L)+q(U-\mu_0)$$; it is generally not simply $$U$$. A zero effect for every unit achieves the lower endpoint while respecting each observed outcome. Setting untreated units' missing treated outcomes to $$U$$ and treated units' missing control outcomes to $$L$$ achieves the upper endpoint and respects MTR.
+\end{todo}
+\textbf{Positive MTS} (monotone treatment selection) assumes
+\begin{equation}
+\E[Y(t)\mid A=1]\geq\E[Y(t)\mid A=0],\qquad t=0,1.
+\end{equation}
+It describes positive sorting into treatment on potential outcomes, not nonnegative treatment effects. Thus
+\begin{align}
+\E[Y(1)\mid A=0]&\leq\mu_1, & \E[Y(0)\mid A=1]&\geq\mu_0,\\
+\tau&\in[\tau_L,\mu_1-\mu_0] &&\text{under MTS alone},\\
+\tau&\in[0,\mu_1-\mu_0] &&\text{under MTR and MTS}.
+\end{align}
+\begin{correction}[The lower bound zero needs MTR]
+The manuscript's final interval implicitly combines MTR and MTS. Positive MTS alone does not prevent negative causal effects. If $$\mu_1<\mu_0$$, the combined assumptions are incompatible with the observed law. Some settings motivate negative rather than positive selection; the direction must be justified. These are identification bounds, not confidence intervals for estimated endpoints.
+\end{correction}
+\section*{Lecture cross-reference}
+Ema Perkovi\'c, STAT 566, Spring 2026: Lecture 1, \emph{Introduction and Randomized Experiments} (SUTVA, Neyman estimation, Fisher inference); Lecture 2, \emph{Manski Bounds and Partial Identification}, Sections 1--3. Local source filenames and full manuscript coverage are listed in \texttt{SOURCE-MAP.md}.

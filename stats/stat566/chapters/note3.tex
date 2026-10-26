@@ -1,0 +1,170 @@
+\section{Identifying and estimating the ATE}
+\source{stat566-note3, pp. 1--2 (April 28); Lecture 5, Section 1}
+With i.i.d. data $$(Y_i,A_i,Z_i)$$ and binary treatment, target
+\begin{equation}
+\tau=\E[Y(1)-Y(0)]=\E[Y\mid\doo(A=1)]-\E[Y\mid\doo(A=0)].
+\end{equation}
+Maintain consistency, no relevant treatment-version effects, no interference, and a sufficient set of pre-treatment covariates $$Z$$ satisfying
+\begin{equation}
+Y(a)\ind A\mid Z,\qquad a=0,1.
+\end{equation}
+The propensity score is $$e(z)=\Prob(A=1\mid Z=z)$$. Positivity requires $$0<e(z)<1$$ on the target population's support. Strong positivity requires a constant $$\delta>0$$ such that $$\delta<e(z)<1-\delta$$. Strong overlap controls inverse weights; finite estimator variance also needs suitable outcome moments.
+
+Define $$\mu_a(z)=\E[Y\mid A=a,Z=z]$$. The adjustment formula identifies
+\begin{equation}
+\tau=\E_Z[\mu_1(Z)-\mu_0(Z)].
+\end{equation}
+Identification is a population statement. Outcome regression, stratification, IPW, matching, and AIPW are different ways to estimate that functional.
+
+The SCM may be fully nonlinear, $$V_j\leftarrow f_j(\pa(V_j),\epsilon_j)$$. An additive-noise model $$f_j(\pa(V_j))+\epsilon_j$$ is a restriction. A model can be linear in unknown coefficients while nonlinear in covariates, for example one containing $$Z^2$$; this does not make it linear in the original variables.
+\begin{todo}[TODO, p. 3: fill the birth-weight example up to 9:02]
+Lecture 5 uses Cattaneo's maternal-smoking and infant-birth-weight data. Randomizing smoking is not an appropriate study design, motivating observational adjustment. The lecture's adjustment variables include maternal age, education, marriage, first birth, alcohol, and prenatal care measures. Several pregnancy-period covariates require substantive timing justification, and unmeasured confounding remains possible. The precise missing recording segment cannot be recovered from the timestamp; the estimation framework below supplies the relevant concepts without inventing its contents.
+\end{todo}
+
+\section{Outcome regression and standardization}
+\source{stat566-note3, p. 3; Lecture 5, Section 2}
+Fit an outcome model and predict both treatment states for every observed covariate vector:
+\begin{equation}
+\widehat\tau_{\mathrm{reg}}=\frac1n\sum_{i=1}^n
+\{\widehat\mu_1(Z_i)-\widehat\mu_0(Z_i)\}.
+\end{equation}
+A single regression on $$A,Z$$ can supply both predictions by setting $$A$$ first to 1 and then to 0. Separate regressions in each arm are another option.
+
+For $$\mu_a(z)=\alpha+\beta a+\gamma^\top z$$, the fitted contrast is the coefficient $$\widehat\beta$$. With effect modification, such as $$\mu_a(z)=\alpha+\beta a+\gamma z+\eta az$$, the contrast is $$\beta+\eta z$$ and must be averaged over the target distribution. A logistic regression coefficient is on the log-odds scale and is not directly a marginal risk-difference ATE.
+\begin{remarkbox}[Model dependence]
+Correctly learning the relevant outcome means is sufficient for consistency of standardization, under the identification assumptions and appropriate regularity. Misspecification can bias the estimated contrast. Special cancellations may still recover a marginal contrast, so correctness of the full outcome model is not a logically necessary condition in every possible data-generating process.
+\end{remarkbox}
+
+\section{Stratification and matching}
+\source{stat566-note3, pp. 2, 4; Lecture 5, Sections 3 and 5}
+For strata $$k=1,\ldots,K$$ with $$n_k$$ observations,
+\begin{equation}
+\widehat\tau_{\mathrm{strat}}=\sum_{k=1}^K\frac{n_k}{n}
+(\overline Y_{1k}-\overline Y_{0k}).
+\end{equation}
+Each stratum needs both treated and control observations. Exact stratification on a sufficient discrete $$Z$$ is a direct plug-in adjustment estimator. Coarse bins of continuous covariates or propensity scores can leave residual confounding; increasing the number of strata trades this against sparse cells.
+
+Matching uses similar covariates or propensity scores to approximate missing potential outcomes. For ATT, a basic estimator pairs each treated unit with control neighbors and averages treated-minus-matched-control outcomes over treated units. It requires overlap, balance assessment, and inference suited to the matching design; matching alone does not establish exchangeability.
+
+\section{Propensity scores and the balancing property}
+\source{stat566-note3, p. 5 (April 30); Lecture 5, Section 4}
+The propensity score compresses a possibly high-dimensional $$Z$$ into a scalar probability, not an outcome risk score. It has the balancing property
+\begin{equation}
+A\ind Z\mid e(Z).
+\end{equation}
+Under exchangeability given $$Z$$, it also yields
+\begin{equation}
+Y(a)\ind A\mid e(Z),\qquad a=0,1.
+\end{equation}
+\begin{supplement}[Why balancing works]
+Condition on $$e(Z)=r$$. Every covariate value in that level set has the same treatment probability $$r$$, so learning the covariates does not change treatment probability further. For any measurable covariate event $$B$$,
+\begin{equation}
+\Prob(A=1,Z\in B\mid e(Z)=r)=r\Prob(Z\in B\mid e(Z)=r).
+\end{equation}
+Combining this balance with exchangeability given $$Z$$ and averaging over $$Z$$ establishes exchangeability given $$e(Z)$$. An estimated score only approximately inherits these population properties; check realized balance.
+\end{supplement}
+
+\section{Inverse probability weighting}
+\source{stat566-note3, pp. 5--6; Lecture 5, Section 4}
+The Horvitz--Thompson form is
+\begin{equation}
+\widehat\tau_{\mathrm{HT}}=\frac1n\sum_{i=1}^n
+\left\{\frac{A_iY_i}{\widehat e(Z_i)}-
+\frac{(1-A_i)Y_i}{1-\widehat e(Z_i)}\right\}.
+\end{equation}
+\begin{todo}[TODOs, pp. 5--6: the IPW idea and its expectation proof]
+Units underrepresented in their treatment arm receive larger weights. Conditional on $$Z$$,
+\begin{align}
+\E\!\left[\frac{AY}{e(Z)}\middle|Z\right]
+&=\frac1{e(Z)}\E[AY\mid Z]\\
+&=\frac1{e(Z)}\Prob(A=1\mid Z)\E[Y\mid A=1,Z]\\
+&=\mu_1(Z).
+\end{align}
+Thus
+\begin{equation}
+\E\!\left[\frac{AY}{e(Z)}\right]=\E[\mu_1(Z)]=\E[Y(1)].
+\end{equation}
+Similarly $$\E[(1-A)Y/\{1-e(Z)\}]=\E[Y(0)]$$. The first equality uses iterated expectation, the second conditions on binary $$A$$, and the causal interpretation uses exchangeability and consistency. True known propensities give unbiased sample averages under i.i.d. sampling and integrability; fitted propensities do not generally preserve finite-sample unbiasedness.
+\end{todo}
+\begin{correction}[IPW permits continuous outcomes]
+The manuscript says the derivation works only for binary/categorical outcomes. Binary \emph{treatment} is what this formula assumes; $$Y$$ can be continuous, provided the required expectations exist. Continuous treatment needs a different identification and estimation setup, typically involving generalized propensity densities.
+\end{correction}
+
+The H\'ajek (normalized) version is
+\begin{equation}
+\widehat\tau_{\mathrm H}=
+\frac{\sum_i A_iY_i/\widehat e_i}{\sum_i A_i/\widehat e_i}
+-\frac{\sum_i(1-A_i)Y_i/(1-\widehat e_i)}{\sum_i(1-A_i)/(1-\widehat e_i)},
+\qquad\widehat e_i=\widehat e(Z_i).
+\end{equation}
+\begin{todo}[TODO, p. 6: intuition for normalization]
+Each weighted arm is divided by its own total weight, so it becomes a weighted average. This stabilizes random deviations of total arm weights from $$n$$ and keeps each arm mean within its observed outcome range when weights are positive. Ratios can have finite-sample bias even with known propensities; they remain consistent under suitable conditions. Normalization often improves stability, but uniformly better efficiency is not guaranteed in every setting.
+\end{todo}
+
+\section{Estimating propensities, overlap, and balance}
+\source{stat566-note3, pp. 7--8}
+Estimate treatment probabilities using a model for $$A$$ given $$Z$$, for example logistic regression. The response is treatment, not outcome. Very small or large fitted scores warn of practical non-overlap or propensity-model problems; they do not alone prove that population positivity is false.
+
+Inspect propensity-score distributions by arm, the distribution of weights, and covariate balance before and after adjustment (a Love plot displays standardized differences). For a continuous covariate $$Z_j$$, one common standardized mean difference is
+\begin{equation}
+\operatorname{SMD}_j=
+\frac{\overline Z_{1j}-\overline Z_{0j}}
+{\sqrt{(s_{1j}^2+s_{0j}^2)/2}}.
+\end{equation}
+\begin{todo}[TODO, p. 7: check the SMD definition]
+Use weighted group means after IPW, and state the denominator convention. A useful before/after comparison retains the same unweighted pooled reference standard deviation in both SMDs, so apparent improvement is not driven by a changing denominator. For a binary covariate, a common analogous denominator uses the pooled Bernoulli variances. Small mean differences do not guarantee balance of interactions, tails, or unobserved confounders.
+\end{todo}
+
+\textbf{Trimming} discards observations with scores outside a chosen overlap region, such as $$[.1,.9]$$. It changes the population represented by the analysis and may require redefining the estimand. \textbf{Clipping} changes fitted scores or weights while retaining observations; symmetric score clipping is
+\begin{equation}
+\widetilde e_i=\min(1-c,\max(c,\widehat e_i)),\qquad 0<c<1/2.
+\end{equation}
+\begin{correction}[Both treatment arms need protection]
+The manuscript's one-sided $$\max(.1,\widehat e)$$ only limits treated-arm weights. Symmetric clipping also caps control-arm weights. Clipping can reduce variance but introduce bias for the original ATE, even asymptotically if the cap remains active. Neither clipping nor normalization repairs a lack of causal overlap.
+\end{correction}
+
+\section{AIPW and double robustness}
+\source{stat566-note3, p. 2 method list; Lecture 5, Section 6 supplement}
+The manuscript lists augmented IPW without developing it. Its ATE estimator is
+\begin{align}
+\widehat\tau_{\mathrm{AIPW}}=\frac1n\sum_{i=1}^n\Bigg[
+&\widehat\mu_1(Z_i)-\widehat\mu_0(Z_i)\\
+&+\frac{A_i\{Y_i-\widehat\mu_1(Z_i)\}}{\widehat e_i}
+-\frac{(1-A_i)\{Y_i-\widehat\mu_0(Z_i)\}}{1-\widehat e_i}\Bigg].
+\end{align}
+\begin{supplement}[Why either nuisance model can suffice]
+If the outcome means are correct, residuals have conditional mean zero, so the augmentation terms average to zero for any well-behaved candidate score. If the propensity is correct, the expectation of each weighted residual repairs the corresponding outcome-model error. Thus consistency can hold when either nuisance model is consistently estimated, with overlap and regularity. Double robustness does not mean robustness to unmeasured confounding, failure of overlap, or arbitrary misspecification of both models. Cross-fitting is useful with flexible learners; valid root-$$n$$ inference requires additional nuisance-rate and moment conditions.
+\end{supplement}
+
+\section{ATT, heterogeneity, and difference-in-differences}
+\source{stat566-note3, pp. 9--12 (May 7); Lecture 6, ATT and DiD}
+ATT only needs exchangeability for the untreated potential outcome, $$Y(0)\ind A\mid Z$$, because treated outcomes are observed for treated units. With controls available on the treated covariate support,
+\begin{align}
+\operatorname{ATT}&=\E[Y\mid A=1]-\E[\mu_0(Z)\mid A=1]\\
+&=\int\{\mu_1(z)-\mu_0(z)\}\,dP(z\mid A=1).
+\end{align}
+ATE instead averages over $$P(Z)$$. The regression ATT estimator is
+\begin{equation}
+\widehat\tau_{\mathrm{ATT}}=\frac1{n_1}\sum_{i:A_i=1}
+\{Y_i-\widehat\mu_0(Z_i)\}.
+\end{equation}
+\begin{correction}[ATT denominator and CATE]
+The sum is over treated units and is divided by $$n_1$$, not all $$n$$ observations. The conditional average effect $$\operatorname{CATE}(z)=\E[Y(1)-Y(0)\mid Z=z]$$ can vary with baseline covariates. ATE, ATT, and every CATE agree under a constant-effect model; randomization alone does not make the CATE constant. ATT is not defined by conditioning on a post-treatment mediator.
+\end{correction}
+
+Pages 11--12 contain only the heading ``DiD Estimator'' and a blank continuation page. The following is a lecture-based completion, not a recovered handwritten derivation.
+\begin{supplement}[Two-period difference-in-differences]
+Let $$D$$ denote treatment group and $$t=0,1$$ pre/post time; only $$D=1$$ is treated at $$t=1$$. With no anticipation and parallel untreated trends,
+\begin{equation}
+\E[Y_1(0)-Y_0(0)\mid D=1]
+=\E[Y_1(0)-Y_0(0)\mid D=0],
+\end{equation}
+the post-treatment ATT is identified by
+\begin{align}
+\tau_{\mathrm{ATT,post}}={}&\{\E[Y_1\mid D=1]-\E[Y_0\mid D=1]\}\\
+&-\{\E[Y_1\mid D=0]-\E[Y_0\mid D=0]\}.
+\end{align}
+The estimator replaces group-time expectations by sample means. Parallel trends concerns unobserved untreated outcomes after treatment; observed pre-trends are diagnostic, not proof. Panel inference should account for repeated observations and the treatment assignment or clustering structure. This is a different identifying strategy from assuming no confounding in outcome levels.
+\end{supplement}
+\section*{Lecture cross-reference}
+Ema Perkovi\'c, STAT 566, Spring 2026: Lecture 5, \emph{ATE Estimation under the Back-Door: Outcome Regression, Stratification, IPW, Matching, and AIPW}; Lecture 6, \emph{ATT and Difference-in-Differences}. See \texttt{SOURCE-MAP.md} for manuscript-page coverage and TODO provenance.

@@ -24,3 +24,14 @@ LaTeX-generated lecture notes (PDF).
 
 - [Note 1: Decision Theory and Bayesian Inference](stats/stat581/stat581-note1.pdf)
 - [Note 2: Admissibility and Stein's Phenomenon](stats/stat581/stat581-note2.pdf)
+
+### Causal Modeling
+
+English LaTeX notes with corrected derivations, lecture supplements, and marked TODOs.
+
+- [All notes combined](stats/stat566/stat566-all.pdf)
+- [Note 1: Potential Outcomes, Randomized Experiments, and Partial Identification](stats/stat566/stat566-note01.pdf)
+- [Note 2: Graphical Models, Markov Properties, and Causal Identification](stats/stat566/stat566-note02.pdf)
+- [Note 3: ATE and ATT Estimation, Weighting, and Difference-in-Differences](stats/stat566/stat566-note3.pdf)
+- [Note 5: Instrumental Variables and Mendelian Randomization](stats/stat566/stat566-note5.pdf)
+- [LaTeX sources, rebuild instructions, and source coverage](stats/stat566/README.md)

@@ -1,0 +1,251 @@
+\section{Graphs, paths, and Bayesian networks}
+\source{stat566-note02, pp. 1--4 (April 9); Lecture 3, Sections 1--2}
+A graph $$G=(V,E)$$ has nodes $$V=\{V_1,\ldots,V_k\}$$ and edges $$E$$. In a directed acyclic graph (DAG), every edge has a direction and no directed cycle is allowed. This encodes the absence of instantaneous feedback; feedback over time can sometimes be represented by distinct time-indexed nodes.
+
+A path is a sequence of \emph{distinct} nodes with adjacent consecutive nodes, irrespective of arrow direction. A directed path follows arrows throughout. For the running example, take
+\begin{equation}
+Z\to A,\quad Z\to Y,\quad A\to M,\quad M\to Y.
+\end{equation}
+\begin{center}
+\begin{tikzpicture}[node distance=20mm]
+\node[v] (a) {A};\node[v,right=of a] (m) {M};\node[v,right=of m] (y) {Y};\node[v,above=of m] (z) {Z};
+\draw[edge] (z)--(a);\draw[edge] (z)--(y);\draw[edge] (a)--(m);\draw[edge] (m)--(y);
+\end{tikzpicture}
+\end{center}
+Here $$A,M,Y,Z$$ is a path (the final edge is traversed backward), but $$M,Z,Y$$ is not a path because $$M,Z$$ are not adjacent. The sequence $$A,M,Y,Z,A$$ repeats $$A$$ and is not a path under this convention. Relative to treatment $$A$$ and outcome $$Y$$, $$M$$ is a mediator and $$Z$$ is a common cause.
+\begin{description}
+\item[Parents / children:] $$\pa(V_j)$$ are nodes with an edge into $$V_j$$; children have an edge from $$V_j$$.
+\item[Ancestors / descendants:] $$\an(V_j)$$ can reach $$V_j$$ by directed paths; $$\de(V_j)$$ are reachable from $$V_j$$. We include the node itself in these sets, matching the handwritten convention. Define $$\nd(V_j)=V\setminus\de(V_j)$$.
+\item[Root / sink:] A root has no parents; a sink has no children. Every finite nonempty DAG has at least one root and at least one sink, potentially several.
+\end{description}
+For this example, $$\an(Y)=\{Z,A,M,Y\}$$ and $$\de(Y)=\{Y\}$$. A topological ordering lists parents before children; $$Z,A,M,Y$$ is one such ordering.
+
+A Bayesian network pairs a DAG with a distribution that factorizes according to it. This supplies probabilistic semantics. A causal model adds assumptions about autonomous mechanisms and how interventions modify them; a Bayesian network alone does not license a do-operator interpretation.
+
+\section{Factorization, the LMP, and the GMP}
+\source{stat566-note02, pp. 3, 7--8; Lecture 3, Sections 2.2 and 4.3}
+\subsection{Three forms of the Markov property}
+Let $$p$$ denote a joint probability mass function or density. Its \textbf{Markov factorization} is
+\begin{equation}\label{eq:factor}
+p(v_1,\ldots,v_k)=\prod_{j=1}^k p(v_j\mid\pa(v_j)).
+\end{equation}
+The \textbf{local Markov property} (LMP) is, for every node,
+\begin{equation}\label{eq:lmp}
+V_j\ind \nd(V_j)\setminus\pa(V_j)\mid\pa(V_j).
+\end{equation}
+Explicitly removing parents from the non-descendant set keeps the three sets disjoint. The shorthand ``independent of non-descendants given parents'' expresses the same idea.
+
+The \textbf{global Markov property} (GMP) states that for every three disjoint sets of nodes $$B,C,S$$,
+\begin{equation}\label{eq:gmp}
+B\dsep C\mid S\text{ in }G\quad\Longrightarrow\quad B\ind C\mid S\text{ under }P.
+\end{equation}
+The left side is a property of the graph. The right side is a property of a probability distribution.
+\begin{supplement}[LMP, GMP, and factorization are equivalent]
+For a DAG and an ordinary finite discrete distribution or a joint law with suitable conditional densities,
+\begin{equation}
+\boxed{\text{LMP}\quad\Longleftrightarrow\quad\text{factorization}\quad\Longleftrightarrow\quad\text{GMP}.}
+\end{equation}
+These are equivalent descriptions of the Markov model, not three unrelated assumptions. Lecture 3 states the result for strictly positive distributions, which is a convenient sufficient setting. For DAGs strict positivity is not essential: conditionals are interpreted on their support (or as probability kernels almost surely). Positivity for causal adjustment is a different requirement concerning treatment overlap.
+\end{supplement}
+\subsection{Why LMP gives factorization}
+Choose a topological order $$V_1,\ldots,V_k$$ and write $$\operatorname{Pre}_j=\{V_1,\ldots,V_{j-1}\}$$. No predecessor is a descendant of $$V_j$$, and all parents occur among predecessors. The ordinary probability chain rule always gives
+\begin{equation}
+p(v_1,\ldots,v_k)=\prod_{j=1}^k p(v_j\mid v_1,\ldots,v_{j-1}).
+\end{equation}
+LMP and decomposition of conditional independence imply
+\begin{equation}
+V_j\ind\operatorname{Pre}_j\setminus\pa(V_j)\mid\pa(V_j),
+\end{equation}
+so each full-history conditional reduces to the parent-only conditional. This yields equation~\eqref{eq:factor}. Conversely, factorization implies the graphical separation statements in GMP; in particular, a node's parents d-separate it from its other non-descendants, yielding LMP.
+\begin{supplement}[Why factorization gives GMP: proof outline]
+To assess $$B\dsep C\mid S$$, retain the ancestors of $$B\cup C\cup S$$. Marginalizing all other nodes in reverse topological order removes their normalized conditional factors. Moralize the remaining DAG: connect co-parents and erase arrowheads. Each remaining factor involves a node and its parents, a clique in this moral graph. The d-separation criterion is equivalent to ordinary separation by $$S$$ in this ancestral moral graph. After fixing $$S=s$$, factors can therefore be grouped into products over components on the two sides, and normalization yields $$p(b,c\mid s)=p(b\mid s)p(c\mid s)$$. This is the distributional statement in GMP. Moralizing the \emph{whole} graph without first restricting to the relevant ancestors can give the wrong answer.
+\end{supplement}
+
+\subsection{Worked factorization and a correction}
+For the four-node example, the chain rule and Markov restrictions give
+\begin{align}
+p(z,a,m,y)&=p(z)p(a\mid z)p(m\mid a,z)p(y\mid z,a,m)\\
+&=p(z)p(a\mid z)p(m\mid a)p(y\mid z,m).
+\end{align}
+The reductions use
+\begin{equation}
+M\ind Z\mid A,\qquad Y\ind A\mid (Z,M).
+\end{equation}
+\begin{correction}[The missing conditioning variable, manuscript p. 3]
+The handwritten statement $$A\ind Y\mid M$$ is generally false because $$A\leftarrow Z\to Y$$ remains open. The correct parent-based statement is $$Y\ind A\mid Z,M$$. Blocking the mediated path alone does not block confounding.
+\end{correction}
+Adding $$Z\to M$$ allows a larger Markov model. A distribution satisfying the original factorization still satisfies the enlarged graph's factorization by letting $$p(m\mid a,z)=p(m\mid a)$$. The enlarged graph does not require that equality. It also does not make that same distribution faithful to the enlarged graph.
+\begin{remarkbox}[A practical way to use the three formulations]
+Use factorization to write or simulate a distribution. Use LMP to derive parent-based conditional independencies and simplify the chain rule. Use GMP to answer a specific independence query between arbitrary sets. None of these directions says that every d-connected pair must be dependent; that further conclusion needs faithfulness.
+\end{remarkbox}
+
+\section{d-separation and the three path motifs}
+\source{stat566-note02, pp. 5--8 (April 14); Lecture 3, Section 3}
+A collider is an \emph{interior node on a particular path} where the two adjacent path edges both point inward. Collider status is path-relative. For disjoint conditioning set $$S$$, a path is open (d-connecting) if every non-collider on it is outside $$S$$ and every collider is in $$\an(S)$$. Equivalently, each collider has itself or a descendant in $$S$$. Otherwise the path is blocked. Two sets are d-separated if \emph{every} path between them is blocked.
+\begin{center}
+\begin{tabular}{lll}\toprule
+Motif & Without conditioning & Given middle node\\\midrule
+Chain: $$X\to M\to Y$$ & Open & Blocked\\
+Fork: $$X\leftarrow C\to Y$$ & Open & Blocked\\
+Collider: $$X\to C\leftarrow Y$$ & Blocked & Open\\\bottomrule
+\end{tabular}
+\end{center}
+The reverse chain $$X\leftarrow M\leftarrow Y$$ behaves like the first row. Conditioning on a descendant of a collider also activates the collider.
+\begin{correction}[Fork and collider were interchanged on p. 5]
+A fork has arrows \emph{out of} the middle node; a collider has arrows \emph{into} it. The handwritten motif labels conflict with their arrows. The table corrects the labels and gives the corresponding open/blocked behavior.
+\end{correction}
+\begin{supplement}[Conditioning is not monotone in d-separation]
+Adding a variable to $$S$$ may block a non-collider path or activate a collider path. Thus a superset of a valid adjustment set need not be valid. To check a query: enumerate paths, identify colliders separately on each path, apply both blocking rules, and verify that no open path remains. An adjacent pair cannot be d-separated by any set excluding the endpoints, because their one-edge path has no interior node to block.
+\end{supplement}
+\subsection{Berkson's paradox and descendant conditioning}
+The graph $$D_1\to H\leftarrow D_2$$ represents two diseases causing hospitalization. Under the graph's Markov model $$D_1\ind D_2$$, but restricting attention to hospitalized patients conditions on $$H$$ and can induce association. If $$H\to B$$, selecting on a hospital bill $$B$$ can do the same. The direction and strength of induced association depend on the mechanisms; the graph alone does not determine its sign.
+
+For $$Z\to A\leftarrow U$$, $$A\to M\to Y$$, $$Z\to Y$$, $$U\to W$$, examine:
+\begin{align}
+Z&\dsep U &&\text{without conditioning},\\
+A&\dsep W\mid U &&\text{the fork through }U\text{ is blocked}.
+\end{align}
+Conditioning on $$A$$, on $$M$$, or on $$Y$$ activates the collider at $$A$$ because $$M,Y$$ are descendants of $$A$$. Hence $$Z$$ and $$U$$ are then d-connected. These are graphical statements; dependence follows under faithfulness.
+
+\section{Faithfulness and Markov equivalence}
+\source{stat566-note02, pp. 7--8, 18; Lecture 3, Section 4}
+The Markov assumption gives graphical separation $$\Rightarrow$$ statistical independence. Faithfulness gives the converse:
+\begin{equation}
+B\ind C\mid S\text{ under }P\quad\Longrightarrow\quad B\dsep C\mid S\text{ in }G.
+\end{equation}
+Together they make the two independence structures coincide. Faithfulness rules out accidental independencies caused by exact parameter cancellation.
+\begin{supplement}[An explicit cancellation example]
+Let independent Gaussian errors generate
+\begin{equation}
+A\leftarrow\epsilon_A,\quad M\leftarrow A+\epsilon_M,\quad
+Y\leftarrow M-A+\epsilon_Y.
+\end{equation}
+The DAG has $$A\to M\to Y$$ and $$A\to Y$$. Substitution gives $$Y=\epsilon_M+\epsilon_Y$$, so $$A\ind Y$$ despite d-connection. The model is Markov but unfaithful. Independent errors alone do not guarantee faithfulness.
+\end{supplement}
+Two DAGs are \textbf{Markov equivalent} if they have the same d-separation statements. The graphical characterization is: same skeleton (undirected adjacencies) and same unshielded colliders (v-structures).
+\begin{align}
+V_1\to V_2\to V_3,\quad V_1\leftarrow V_2\to V_3,\quad
+V_1\leftarrow V_2\leftarrow V_3
+\end{align}
+form one equivalence class and imply $$V_1\ind V_3\mid V_2$$. The graph $$V_1\to V_2\leftarrow V_3$$ is a different class and implies marginal independence of its endpoints.
+\begin{correction}[Causality, faithfulness, and identification]
+A causal DAG need not be faithful to its distribution. Faithfulness is especially useful for causal discovery from conditional independencies, but back-door identification for a \emph{given} correct causal DAG does not require faithfulness. Observational data generally identify only an equivalence class. Sufficiently rich intervention data can orient more edges under additional assumptions; ``all interventions imply a unique DAG'' is not unconditional, since redundant edges and unfaithful mechanisms can hide causal distinctions.
+\end{correction}
+
+\section{Structural causal models and randomization}
+\source{stat566-note02, pp. 4, 9--11, 21; Lectures 3 and 3b}
+An acyclic structural causal model specifies assignments
+\begin{equation}
+V_j\leftarrow f_j(\pa(V_j),\epsilon_j),\qquad j=1,\ldots,k,
+\end{equation}
+with mutually independent exogenous errors for the causally sufficient DAG model. A topological order makes recursive generation possible. Pairwise independence of errors is generally insufficient; mutual independence is intended. Gaussianity and linearity are optional modeling choices.
+\begin{align}
+Z&\leftarrow\epsilon_Z, & W&\leftarrow\epsilon_W,\\
+A&\leftarrow\mathbf1\{\alpha_{ZA}Z+\alpha_{WA}W+\epsilon_A>0\},\\
+Y&\leftarrow\beta A+\gamma Z+\epsilon_Y.
+\end{align}
+This threshold model illustrates a binary treatment. Arbitrary nonlinear functions can replace the linear expressions. Additive noise $$f(\pa(V_j))+\epsilon_j$$ is more restrictive than a general function $$f(\pa(V_j),\epsilon_j)$$.
+\begin{todo}[TODO, p. 21: add notes about SCMs]
+To obtain $$Y(a)$$, retain the same exogenous errors and replace only the assignment for $$A$$ by $$A\leftarrow a$$; then recursively recompute its descendants. If a unit naturally has $$A=a$$, the recomputed outcome equals its observed outcome (consistency). The functions encode relevant treatment versions and, in a per-unit model with no cross-unit arguments, no interference. Shared latent causes can be represented explicitly by extra nodes; dependent errors generally invalidate the simple observed-variable DAG factorization.
+\end{todo}
+A randomized treatment replaces the assignment for $$A$$ by an independent random draw, for example $$A\leftarrow\epsilon_A^{\mathrm{RCT}}\sim\operatorname{Bernoulli}(.5)$$. Incoming edges to $$A$$ disappear, but its outgoing causal mechanisms remain.
+
+\subsection{Parametric inference and adjustment in an RCT}
+For two independent normal samples with a common variance, the pooled two-sample statistic is
+\begin{align}
+s_p^2&=\frac{(n_1-1)s_1^2+(n_0-1)s_0^2}{n_1+n_0-2},\\
+t&=\frac{\overline Y_1-\overline Y_0-\tau_0}{s_p\sqrt{1/n_1+1/n_0}}.
+\end{align}
+Under the null it has a $$t_{n_1+n_0-2}$$ distribution in this parametric setting. Under a nonzero alternative, the noncentrality parameter is $$(\tau-\tau_0)/(\sigma\sqrt{1/n_1+1/n_0})$$. Power is $$1-\beta_{\mathrm{II}}=\Prob(\text{reject }H_0\mid\text{specified alternative})$$.
+\begin{correction}[The standard error needs the arm-size factors]
+The handwritten denominator only displays a pooled variance. The statistic requires $$s_p\sqrt{1/n_1+1/n_0}$$. This parametric result is distinct from finite-population randomization inference. Use Welch's test or robust inference when the equal-variance model is inappropriate.
+\end{correction}
+In an RCT, conditioning on a mediator $$A\to M\to Y$$ blocks part of the total effect. Conditioning on a common effect $$A\to C\leftarrow Y$$ can introduce selection bias. Baseline prognostic covariates may improve precision, but precision gains are not automatic and inference must match the adjustment method. The graph and the estimator jointly determine the interpretation.
+
+\section{Interventions and truncated factorization}
+\source{stat566-note02, pp. 12--13, 18--19 (April 21--23); Lecture 4, Section 1}
+For a causal DAG with invariant mechanisms, $$\doo(A=a)$$ replaces the treatment mechanism by a constant. Let $$G_{\overline A}$$ denote removal of incoming edges to $$A$$. The post-intervention law on the other variables is
+\begin{equation}
+p(v_{-A}\mid\doo(A=a))=
+\left.\prod_{V_j\neq A}p(v_j\mid\pa(v_j))\right|_{A=a}.
+\end{equation}
+If the joint law includes $$A$$, multiply this product by a point mass at $$a$$ (an indicator for a discrete treatment, a Dirac measure for a continuous one).
+
+For $$Z\to A\to Y$$ and $$Z\to Y$$,
+\begin{align}
+p(z,a,y)&=p(z)p(a\mid z)p(y\mid a,z),\\
+p(z,y\mid\doo(A=a))&=p(z)p(y\mid a,z),\\
+p(y\mid\doo(A=a))&=\int p(y\mid a,z)\,dP(z),\\
+\E[Y(a)]&=\int\E[Y\mid A=a,Z=z]\,dP(z).
+\end{align}
+In contrast, ordinary conditioning averages over $$P(Z\mid A=a)$$, which generally differs from $$P(Z)$$. Two observationally equivalent factorizations can imply different intervention laws because they assign different causal mechanisms.
+\begin{correction}[Avoid a stray treatment indicator]
+Once $$A=a$$ is fixed and $$A$$ is not part of the random vector, $$p(y\mid\doo(A=a))$$ does not contain an additional $$\mathbf1\{A=a\}$$. The indicator belongs only in a joint post-intervention law that still includes the treatment variable.
+\end{correction}
+
+\section{Back-door adjustment and choosing a set}
+\source{stat566-note02, pp. 13--20; Lecture 4, Sections 2--4}
+An observed set $$S$$ is an adjustment set if
+\begin{equation}
+p(y\mid\doo(A=a))=\int p(y\mid A=a,S=s)\,dP(s).
+\end{equation}
+For discrete variables, replace the integral by a sum. Pearl's back-door criterion is a sufficient graphical condition:
+\begin{enumerate}
+\item $$S$$ contains no descendants of $$A$$ and excludes $$A,Y$$.
+\item $$S$$ blocks every path from $$A$$ to $$Y$$ whose first edge points into $$A$$.
+\end{enumerate}
+If no directed path leads from A to Y, intervening on A cannot change Y in the stated acyclic SCM. A single reverse arrow is not by itself enough to conclude this in a larger graph; check for other directed paths.
+
+A back-door path need not be directed toward $$A$$ along its entire length. Only its first edge is constrained.
+\begin{supplement}[Deriving the adjustment formula]
+Under the causal interpretation, a back-door set gives $$Y(a)\ind A\mid S$$. With consistency and positivity,
+\begin{align}
+\E[Y(a)]&=\int\E[Y(a)\mid S=s]\,dP(s)\\
+&=\int\E[Y(a)\mid A=a,S=s]\,dP(s)\\
+&=\int\E[Y\mid A=a,S=s]\,dP(s).
+\end{align}
+The first step is total expectation, the second exchangeability, and the third consistency. The same argument with indicators of outcome events identifies the entire interventional distribution. Positivity ensures the observational conditionals are available wherever the target distribution places mass.
+\end{supplement}
+The parent set $$\pa(A)$$ blocks back-door paths and contains no descendants of $$A$$; when the outcome is downstream and the parents are observed, it is a standard sufficient choice. Hidden parents may make this option unavailable. The back-door criterion is sufficient, not a complete characterization of all valid adjustment sets or all identification strategies.
+
+A \textbf{minimal} back-door set has no proper subset that is also a back-door set. Minimal does not mean uniquely best, minimum cardinality among all sets, or minimum variance.
+\subsection{The larger handwritten graph}
+The graph on manuscript p. 16 has edges
+\begin{align}
+W&\to L,\quad W\to Y,\quad L\to A,\quad P\to A,\\
+P&\to Q,\quad R\to Q,\quad R\to Y,\quad A\to Y,\\
+A&\to C,\quad A\to E,\quad Y\to E,\quad Y\to D.
+\end{align}
+Its relevant back-door paths include $$A\leftarrow L\leftarrow W\to Y$$ and $$A\leftarrow P\to Q\leftarrow R\to Y$$. The latter is already blocked by collider $$Q$$.
+Thus $$\{W\}$$ and $$\{L\}$$ are minimal valid sets; $$\{W,P\}$$ and $$\{L,P\}$$ are valid but not minimal. Conditioning on $$Q$$ opens its collider path, but $$\{L,P,Q\}$$ still blocks it at $$P$$ and is valid. Conditioning on descendants $$C,E,D$$ violates the stated back-door criterion. This example illustrates why listing all paths is essential.
+
+\subsection{Why adjusting for all baseline variables can fail}
+In the M-bias structure
+\begin{equation}
+A\leftarrow U_1\to Z\leftarrow U_2\to Y,
+\end{equation}
+$$Z$$ may be measured before treatment but is a collider. Conditioning on it opens the path between $$A$$ and $$Y$$. If $$U_1,U_2$$ are unobserved, adjusting for all \emph{observed} baseline covariates can therefore introduce bias. In a fully observed DAG, the full set of non-descendants of $$A$$, excluding $$A,Y$$ and for downstream $$Y$$, contains the parents of $$A$$ and blocks back-door paths at those parents. The hidden-variable qualification matters.
+\begin{correction}[Graphical conditions versus distribution-specific coincidences]
+A back-door set implies conditional exchangeability under the causal model. A particular distribution may satisfy an exchangeability equality by cancellation even when the corresponding paths are open. Thus the manuscript's equivalence sign between a probabilistic condition and a graphical condition should not be used without the appropriate model-wide qualification.
+\end{correction}
+
+\subsection{Identification versus precision}
+The p. 20 graph has $$I\to A$$, $$B\to A$$, $$B\to M$$, $$C\to M$$, $$A\to M$$, $$M\to Y$$, and $$A\to D$$. Valid back-door sets include $$\{B\}$$, $$\{I,B\}$$, $$\{B,C\}$$, and $$\{I,B,C\}$$. Here $$I$$ only predicts treatment, $$C$$ predicts outcome through the mediator, and $$D$$ is post-treatment. These roles affect efficiency differently. Outcome predictors often help precision; pure treatment predictors can inflate weighting variance. A set containing $$D$$ fails the no-descendants requirement of Pearl's original criterion even if a more general adjustment analysis could allow that dead-end descendant.
+
+\section{Wright's rule for total causal effects}
+\source{stat566-note02, p. 22; Lecture 4, Section 4.2.1}
+In a linear acyclic SCM, the total causal effect is the sum of products of edge coefficients along \emph{directed} causal paths:
+\begin{equation}
+\frac{\partial\E[Y\mid\doo(A=a)]}{\partial a}
+=\sum_{\pi:A\to\cdots\to Y}\ \prod_{e\in\pi}\beta_e.
+\end{equation}
+For $$A\to M\to Y$$ with coefficients .8 and 2, the total effect is 1.6. If a direct $$A\to Y$$ edge with coefficient $$\delta$$ is added, the effect becomes $$1.6+\delta$$.
+\begin{supplement}[Total effects are not observational covariances]
+A safe general covariance formula is obtained by recursively expanding each variable in the independent exogenous errors. If $$c_{Xh}$$ is the sum of directed-path products from error $$\epsilon_h$$ to $$X$$ (including coefficient 1 for its own error), then
+\begin{equation}
+\Cov(X,Y)=\sum_h c_{Xh}c_{Yh}\Var(\epsilon_h).
+\end{equation}
+This includes common-cause contributions, so covariance generally differs from the total causal effect. It also keeps the needed variance weights explicit. The directed-path rule above concerns total effects in a linear SCM, not arbitrary nonlinear models.
+\end{supplement}
+\section*{Lecture cross-reference}
+Ema Perkovi\'c, STAT 566, Spring 2026: Lecture 3, \emph{Graphical Models, DAGs, d-Separation, and the Markov Condition}, Sections 2--4; Lecture 3b, \emph{RCTs and DAGs}; Lecture 4, \emph{Causal DAGs and Identification}, Sections 1--4. Proof outlines and qualifications beyond the handwritten notes are marked as supplements or corrections. See \texttt{SOURCE-MAP.md} for the page map.
