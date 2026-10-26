@@ -32,6 +32,7 @@ LaTeX-generated lecture notes (PDF).
 
 - [Note 1: Decision Theory and Bayesian Inference](stats/stat581/stat581-note1.pdf)
 - [Note 2: Admissibility and Stein's Phenomenon](stats/stat581/stat581-note2.pdf)
+- [Note 3: Large Sample Theory and Distributional Distances](stats/stat581/stat581-note3.pdf)
 
 ### Causal Modeling
 
