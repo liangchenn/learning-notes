@@ -5,6 +5,14 @@ Just some notes and stuff
 
 - [Hypothesis Testing](stats/hypothesis-testing.html)
 
+### Stochastic Modeling
+
+English LaTeX notes with corrected derivations, lecture supplements, and marked TODOs.
+
+- [Note 1: Probability Review and Undirected Graphical Models](stats/stat516/stat516-note1.pdf)
+- [Note 2: Directed Acyclic Graphs and Structural Equation Models](stats/stat516/stat516-note2.pdf)
+- [Note 3: Discrete-Time Markov Chains](stats/stat516/stat516-note3.pdf)
+
 ### Measure Theory
 
 LaTeX-generated lecture notes (PDF).
