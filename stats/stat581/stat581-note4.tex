@@ -1,0 +1,620 @@
+% Compile with XeLaTeX twice. All mathematics uses equation/align environments.
+\documentclass[12pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{microtype}
+\usepackage[hidelinks]{hyperref}
+% Load the template's New Computer Modern family directly to avoid
+% font-setup warnings in the installed newcomputermodern package.
+\usepackage{fontspec}
+\setmainfont{NewCM10-Book.otf}[BoldFont=NewCM10-Bold.otf,
+ ItalicFont=NewCM10-BookItalic.otf,BoldItalicFont=NewCM10-BoldItalic.otf]
+\usepackage{unicode-math}
+\setmathfont{NewCMMath-Book.otf}
+\usepackage[most]{tcolorbox}
+\usepackage{needspace}
+\newtcolorbox{remarkbox}[1][Note]{colback=gray!5,colframe=gray!60,
+ coltitle=black,title=#1,fonttitle=\bfseries,arc=2mm,boxrule=0.6pt,breakable}
+\newtcolorbox{todobox}[1]{colback=yellow!8,colframe=orange!75!black,
+ title={TODO: #1},fonttitle=\bfseries,arc=2mm,boxrule=0.6pt,breakable}
+\newtcolorbox{correctionbox}[1]{colback=red!3,colframe=red!55!black,
+ title={Correction: #1},fonttitle=\bfseries,arc=2mm,boxrule=0.6pt,breakable}
+\newtcolorbox{conceptbox}[1]{colback=blue!3,colframe=blue!55!black,
+ title={Supplement: #1},fonttitle=\bfseries,arc=2mm,boxrule=0.6pt,breakable}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+\allowdisplaybreaks
+\newcommand{\E}{\mathbb E}
+\newcommand{\Prob}{\mathbb P}
+\newcommand{\R}{\mathbb R}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\title{STAT 581: M-estimation and Maximum Likelihood\\\large Notes 4: Handwritten MLE Derivations and Lecture Complements}
+\author{Liang-Cheng Chen}
+\date{October 28 handwriting; updated October 30, 2026}
+\newtcolorbox{gapbox}[1]{colback=cyan!4,colframe=cyan!50!black,title={Missing from original typed notes: #1},fonttitle=\bfseries,arc=2mm,boxrule=.6pt,breakable}
+\begin{document}
+\maketitle
+\begin{remarkbox}[Sources and editorial conventions]
+This volume integrates all five substantive pages of the October 28
+handwritten \texttt{../notes/stat581-note4.pdf}; page 6 is blank.
+Sections on likelihood, consistency, smooth asymptotics, and sandwich
+inference incorporate that handwriting. Later sections retain the
+previously prepared complements from Yen-Chi Chen's \emph{Lecture 3:
+M-estimation and the maximum likelihood estimator}, pp. 3-1--3-26,
+including Appendices A--B. They extend beyond this five-page handwritten source.
+
+Gray boxes explain marginal questions, red boxes show corrections, and
+blue boxes supply additional arguments. No explicit TODO marker occurs
+in this new handwritten file. Handwritten M1--M3 labels below are local
+labels and differ from the numbering in lecture Theorem 3.1.
+All mathematics uses equation or align environments.
+\end{remarkbox}
+\clearpage
+\tableofcontents
+\clearpage
+\section{Likelihood, population targets, and misspecification}
+\textit{Handwritten p. 1; Lecture 3, Sections 3.1--3.2, pp. 3-1--3-7.}
+For IID data under their true law, define the working model and criterion:
+\begin{align}
+ L_n(\theta)&=\prod_{i=1}^np_\theta(X_i),\quad
+ \ell_\theta(x)=\log p_\theta(x),\\
+ M_n(\theta)&=\frac1n\sum_i\ell_\theta(X_i),\quad
+ M(\theta)=\E_P\ell_\theta(X),\\
+ \widehat\theta_n&\in\operatorname*{argmax}_\theta M_n(\theta),\quad
+ \theta^*\in\operatorname*{argmax}_\theta M(\theta).
+\end{align}
+The expectation is under the true law, even if the model is incorrect.
+When the relevant KL divergences are defined, maximizing expected
+log-likelihood minimizes the KL divergence from the true law to the
+working model. With a correct identifiable model the target is the true
+parameter. Pointwise LLN alone does not prove convergence of maximizers.
+An interior differentiable maximizer satisfies the score equation; a
+boundary maximizer or an unbounded likelihood need not do so.
+
+Empirical risk minimization uses the negative criterion. A Z-estimator
+instead approximately solves an estimating equation. A stationary point
+need not be a global maximizer.
+\begin{align}
+ R_n(\theta)&=\frac1n\sum_iL(\theta,X_i),\quad R(\theta)=\E L(\theta,X),\\
+ S_n(\theta)&=\frac1n\sum_i s_\theta(X_i),\quad
+ s_\theta(x)=\nabla_\theta\ell_\theta(x),\quad S(\theta)=\E s_\theta(X),\\
+ H_n(\theta)&=\frac1n\sum_i\nabla_\theta^2\ell_\theta(X_i),\quad
+ H(\theta)=\E\nabla_\theta^2\ell_\theta(X).
+\end{align}
+Interchanging derivatives and expectation requires its own domination or
+integrability justification.
+
+
+\begin{remarkbox}[Randomness and the population MLE (handwritten pp. 1--2)]
+The working density and the true data law need not coincide. The population
+criterion and its unique maximizer are deterministic functions of the true
+law and the chosen model; the empirical criterion and its maximizer depend
+on the data. Thus the pseudo-true target may change when the working model
+changes, even though the true law stays fixed.
+\end{remarkbox}
+\begin{correctionbox}{A pointwise SLLN is not a uniform law (handwritten p. 1)}
+For each fixed parameter, integrability gives the usual SLLN. Its quantifier
+does not allow the parameter to vary with the sample or justify exchanging
+limit and maximization. A uniform law for the log-likelihood class, together
+with separation and approximate maximization, supplies the missing argument.
+A standard sufficient setting is compact parameter space, almost-sure
+continuity in the parameter, and an integrable envelope for the absolute
+log-likelihood. The classical empirical-CDF Glivenko--Cantelli theorem
+alone is not a uniform law for an arbitrary likelihood class.
+\end{correctionbox}
+\begin{remarkbox}[Two meanings of score (handwritten p. 2)]
+Here the score differentiates the log-likelihood with respect to the model
+parameter. In some machine-learning contexts, ``score'' instead means a
+gradient with respect to the data. These are different objects:
+\begin{equation}
+ s_\theta(x)=\nabla_\theta\log p_\theta(x),\qquad
+ s^{\mathrm{data}}_\theta(x)=\nabla_x\log p_\theta(x).
+\end{equation}
+The latter requires a differentiable continuous-data model. An interior
+smooth optimum satisfies a score equation, but a score root alone need
+not be the desired maximizer.
+\end{remarkbox}
+
+\section{Consistency before normality}
+\textit{Theorems 3.7--3.8, pp. 3-8--3-9.}
+A useful argmax theorem assumes uniform convergence, a separated maximum,
+and sufficiently accurate empirical optimization:
+\begin{align}
+ &\sup_{\theta\in\Theta}|M_n(\theta)-M(\theta)|=o_P(1),\\
+ &\forall\varepsilon>0:\quad
+ \sup_{\|\theta-\theta^*\|\ge\varepsilon}M(\theta)<M(\theta^*),\\
+ &M_n(\widetilde\theta_n)\ge M_n(\theta^*)-o_P(1).
+\end{align}
+Then the approximate maximizer is consistent. To prove it, call the
+strict population gap outside the target neighborhood a positive number.
+Outside that neighborhood, two uniform errors and the optimization error
+would have to exceed the gap. The probability of this tends to zero.
+Compactness, continuity, and a unique maximum are common sufficient
+conditions for separation; uniqueness alone on an arbitrary noncompact
+space is insufficient.
+
+The Z-estimator analogue replaces maximum separation by a norm bound:
+\begin{align}
+ &\sup_\theta\|S_n(\theta)-S(\theta)\|=o_P(1),\quad S(\theta^*)=0,\\
+ &\inf_{\|\theta-\theta^*\|\ge\varepsilon}\|S(\theta)\|>0
+ \quad\text{for every }\varepsilon>0,\\
+ &\|S_n(\widetilde\theta_n)\|=o_P(1).
+\end{align}
+Uniform convergence and the approximate-zero condition preclude a root
+far from the unique separated population zero. In vector problems the
+norms are essential; a vector cannot be ordered by a scalar greater-than sign.
+
+\section{Classical smooth asymptotic normality}
+\textit{Theorem 3.1 and Remark 3.2, pp. 3-3--3-5.}
+Use an interior, identifiable target; consistency from the preceding
+argmax theorem; a score equation; an invertible limiting Hessian; a finite
+score second moment; and local uniform Hessian convergence. An integrable
+absolute envelope on third derivatives is one convenient way to control
+Hessian changes. Assume the log-likelihood and its lower derivatives have
+the needed integrability at an anchor point.
+\begin{correctionbox}{The listed M1--M4 need supporting conditions}
+Compactness and a third-derivative envelope alone do not imply finite score
+variance or integrability of lower derivatives. A random linear term has
+zero third derivative but may have infinite variance. The proof also needs
+consistency before its Taylor remainder is negligible. We state these
+requirements explicitly rather than infer them from M1--M4 alone.
+\end{correctionbox}
+Set the Hessian and score covariance at the target as
+\begin{equation}
+ H=H(\theta^*),\quad B=\E[s_{\theta^*}(X)s_{\theta^*}(X)^{\mathsf T}],
+ \quad\E s_{\theta^*}(X)=0.
+\end{equation}
+A multivariate-safe expansion integrates the Hessian along a segment:
+\begin{align}
+ 0&=S_n(\theta^*)+A_n(\widehat\theta_n-\theta^*),\\
+ A_n&=\int_0^1H_n(\theta^*+t(\widehat\theta_n-\theta^*))\,dt
+ \xrightarrow{P}H,\\
+ \sqrt n(\widehat\theta_n-\theta^*)
+ &=-H^{-1}\frac1{\sqrt n}\sum_i s_{\theta^*}(X_i)+o_P(1)\\
+ &\xrightarrow{d}N_d(0,H^{-1}BH^{-\mathsf T}).
+\end{align}
+The local segment is in the parameter space with probability tending to
+one because the target is interior and the estimator is consistent.
+This expansion avoids assuming a single intermediate point works for an
+entire vector score. For symmetric Hessians the rightmost inverse transpose
+is just the inverse.
+\begin{correctionbox}{Sign and the Taylor remainder}
+The score-based influence function is the negative inverse Hessian times
+the score. Theorem 3.1's final expansion and Theorem 3.9 omit this minus
+sign. It cancels from covariance but matters in linear representations.
+A second-order score remainder uses the integral weight corresponding to
+Taylor's theorem; a schematic unweighted integral is only a bound, not an
+exact remainder formula. The integrated-Hessian identity above is exact.
+\end{correctionbox}
+
+
+\subsection{The handwritten proof, step by step}
+\textit{Handwritten pp. 2--5; lecture Theorem 3.1.}
+The handwritten assumptions are: M1, both empirical and population targets
+solve their score equations; M2, the population target is interior; M3,
+entrywise Hessian integrability at the target and nonsingularity of its
+expectation. To complete the proof, also assume consistency, finite score
+second moment, and local uniform control of the Hessian, as stated above.
+These local handwritten labels are not the lecture's M1--M4 list.
+
+\textbf{Step 1: fix the target before applying the CLT.}
+Define the empirical fluctuation at the deterministic population target:
+\begin{align}
+ Y_i&=s_{\theta^*}(X_i),\qquad \E Y_i=0,\\
+ \Delta_n&=S_n(\theta^*)-S(\theta^*)
+ =\frac1n\sum_{i=1}^n(Y_i-\E Y_i),\\
+ B&=\operatorname{Cov}(Y_i)=\E Y_iY_i^{\mathsf T},\qquad
+ \sqrt n\Delta_n\xrightarrow{d}N_d(0,B).
+\end{align}
+At the fixed target these are IID vectors. Evaluating every summand at the
+same data-dependent estimator generally makes them dependent, so a direct
+IID CLT cannot be applied to those plug-in terms. The empirical score at
+the fitted estimator is in fact zero under M1.
+
+\textbf{Step 2: use the score equations and Taylor expansion.}
+Write the estimation error and expand about the population target:
+\begin{align}
+ h_n&=\widehat\theta_n-\theta^*,\\
+ -\Delta_n&=S_n(\widehat\theta_n)-S_n(\theta^*)
+ =H_n(\theta^*)h_n+R_n,\\
+ h_n&=-H_n(\theta^*)^{-1}\Delta_n
+       -H_n(\theta^*)^{-1}R_n.
+\end{align}
+\begin{correctionbox}{Track the remainder sign (handwritten pp. 3--4)}
+If the remainder is added in the preceding Taylor expansion, it is
+subtracted after solving for the estimation error. Its sign may be
+redefined, but both displayed equalities must then use that convention.
+It cannot simply be set to zero. The integrated-Hessian argument above
+justifies its negligibility and works for a vector score.
+\end{correctionbox}
+For example, an integrable local envelope for absolute third derivatives
+bounds the remainder by a bounded-in-probability multiple of the squared
+error norm. Consistency first makes this remainder small relative to the
+error norm; the score CLT and nonsingular curvature then yield the
+root-sample-size rate. Only after that step is the remainder negligible
+at the CLT scale:
+\begin{align}
+ \|R_n\|&\le C_n\|h_n\|^2,\qquad C_n=O_P(1),\\
+ h_n=o_P(1)&\ \Longrightarrow\ R_n=o_P(\|h_n\|),\\
+ \|h_n\|&=O_P(n^{-1/2}),\qquad \sqrt n R_n=o_P(1).
+\end{align}
+The rate follows by absorbing the small multiple of the error norm into
+the left side of the solved Taylor inequality. It is not an assumption
+that can be silently used to prove itself.
+
+\textbf{Step 3: average IID Hessian matrices and invert the limit.}
+For every coordinate pair assume the indicated absolute integrability:
+\begin{align}
+ W_i&=\nabla_\theta^2\ell_{\theta^*}(X_i),\qquad
+ \E |(W_i)_{jk}|<\infty,\\
+ H_n(\theta^*)&=\frac1n\sum_iW_i\xrightarrow{P}\E W_i=H,\\
+ \det H&\ne0\quad\Longrightarrow\quad
+ H_n(\theta^*)^{-1}\xrightarrow{P}H^{-1}.
+\end{align}
+The last assertion holds on an event with probability tending to one.
+The absolute value belongs inside the expectation in the LLN assumption.
+In fixed dimension, nonsingularity means every eigenvalue is nonzero;
+for a smooth interior maximum the symmetric Hessian is negative
+semidefinite, and nonsingularity then makes it negative definite.
+
+\textbf{Step 4: apply Slutsky's theorem.}
+The resulting covariance and influence function are
+\begin{align}
+ \sqrt n h_n&=-H^{-1}\sqrt n\Delta_n+o_P(1)
+ \xrightarrow{d}N_d(0,\Sigma),\\
+ \Sigma&=H^{-1}BH^{-\mathsf T},\qquad
+ \operatorname{IF}(x)=-H^{-1}s_{\theta^*}(x).
+\end{align}
+The inverse transpose is required by the general covariance transformation;
+for a symmetric Hessian it equals the ordinary inverse.
+
+\subsection{Sandwich inference and correct specification}
+A consistent plug-in covariance for the scaled estimator is
+\begin{align}
+ \widehat H&=H_n(\widehat\theta_n),\quad
+ \widehat B=\frac1n\sum_i s_{\widehat\theta_n}(X_i)
+ s_{\widehat\theta_n}(X_i)^{\mathsf T},\\
+ \widehat\Sigma&=\widehat H^{-1}\widehat B\widehat H^{-\mathsf T},\\
+ \widehat\theta_{n,j}&\ \pm\ z_{1-\alpha/2}\sqrt{\widehat\Sigma_{jj}/n}.
+\end{align}
+Consistency of these plug-ins needs suitable local uniform laws and
+continuity, not merely convergence of the estimator. Under a correct
+regular model, the information identity yields
+\begin{equation}
+ B=I(\theta_0)=-H,\qquad\Sigma=I(\theta_0)^{-1}.
+\end{equation}
+Under misspecification, the outer-product matrix is the score variability
+under the true law and generally differs from negative expected curvature.
+Bootstrap replicate covariance estimates the covariance of the estimator
+itself; multiply it by the sample size to compare it with the asymptotic
+covariance of the root-sample-size scaled estimator. Bootstrap validity
+also requires regularity; it is not universal for every M-estimator.
+
+
+\begin{correctionbox}{Information identity has a minus sign (handwritten p. 5)}
+Under correct specification and differentiation-under-the-integral
+conditions, differentiation of the unit total mass gives
+\begin{align}
+ 0&=\nabla_\theta^2\int p_\theta(x)\,dx\\
+ &=\E_\theta\!\left[
+ \nabla_\theta^2\ell_\theta(X)+s_\theta(X)s_\theta(X)^{\mathsf T}
+ \right],\\
+ I(\theta_0)&=\E_{\theta_0}s_{\theta_0}(X)s_{\theta_0}(X)^{\mathsf T}
+ =-\E_{\theta_0}\nabla_\theta^2\ell_{\theta_0}(X)=-H,\\
+ \Sigma&=I(\theta_0)^{-1}=-H^{-1}.
+\end{align}
+The positive score outer-product expectation is not the expected
+log-likelihood Hessian. The handwriting misses this sign in its
+correct-model remark. With misspecification, the outer product under the
+true law is a score-variability matrix; calling it Fisher information must
+not be taken to imply the information identity.
+\end{correctionbox}
+\begin{remarkbox}[Which covariance does the sandwich estimate? (handwritten p. 5)]
+The displayed sandwich estimates the covariance of the limiting scaled
+estimator. Divide it by sample size for an estimated covariance of the
+unscaled fitted parameter. Plug-in Hessians and outer products require
+local uniform convergence, not just a pointwise LLN at a fixed parameter.
+In a misspecified model the sandwich is needed even when an inverse-Hessian
+formula is available computationally.
+\end{remarkbox}
+
+\section{Examples of empirical risk minimization}
+\textit{Examples 3.3--3.6, pp. 3-6--3-7.}
+Least squares minimizes average squared residuals. For linear prediction,
+the population target is a best linear projection, even if the conditional
+mean is nonlinear:
+\begin{equation}
+ \theta^*=\operatorname*{argmin}_\theta\E(Y-X^{\mathsf T}\theta)^2.
+\end{equation}
+Logistic regression uses the loss and probability
+\begin{align}
+ q_\theta(x)&=(1+e^{-x^{\mathsf T}\theta})^{-1},\\
+ L(\theta;x,y)&=-yx^{\mathsf T}\theta+\log(1+e^{x^{\mathsf T}\theta}),\\
+ \nabla L&=x(q_\theta(x)-y),\quad
+ \nabla^2 L=xx^{\mathsf T}q_\theta(x)(1-q_\theta(x)).
+\end{align}
+A finite unique minimizer is an assumption; complete separation can destroy
+existence of an unrestricted logistic MLE.
+
+Classification with zero--one loss is also ERM, but the criterion is usually
+nondifferentiable, so ERM membership alone does not imply the classical
+smooth normality theorem applies.
+
+For a kernel density estimate and its mode,
+\begin{align}
+ \widehat p_h(x)&=\frac1{nh^d}\sum_iK((X_i-x)/h),\\
+ \widehat m_h&\in\operatorname*{argmax}_x\widehat p_h(x),\quad
+ m_h\in\operatorname*{argmax}_x\E\widehat p_h(x).
+\end{align}
+For fixed bandwidth this is an M-estimator for the smoothed mode. For a
+shrinking bandwidth it is a triangular problem: under additional kernel,
+density, curvature, and bandwidth conditions the scale is
+\begin{equation}
+ \sqrt{nh^{d+2}}(\widehat m_h-m_h)\xrightarrow{d}N(0,\Sigma_h^{\mathrm{lim}}).
+\end{equation}
+The lecture's statement is a schematic rate. Centering instead at the true
+mode also requires controlling smoothing bias, often of order squared
+bandwidth under appropriate smoothness.
+
+\section{Modern M-estimation: nonsmooth empirical criteria}
+\textit{Theorem 3.9, Examples 3.10--3.11, pp. 3-9--3-11.}
+A useful normality theorem requires: differentiability at the target for
+almost every observation; a local Lipschitz envelope with finite second
+moment; a nonsingular second-order population expansion; consistency; and
+an empirical criterion within a term smaller than inverse sample size of
+the empirical optimum (exact maximizers satisfy this).
+\begin{align}
+ M(\theta)&=M(\theta^*)+\tfrac12(\theta-\theta^*)^{\mathsf T}
+ H(\theta-\theta^*)+o(\|\theta-\theta^*\|^2),\\
+ |\ell_{\theta_1}(x)-\ell_{\theta_2}(x)|&\le\eta(x)\|\theta_1-\theta_2\|,
+ \quad\E\eta(X)^2<\infty.
+\end{align}
+Then the same negative-Hessian score expansion applies. The sample
+criterion need not have a second derivative everywhere.
+
+\subsection{Sample median}
+Assume a unique population median with a density continuous and positive
+there. For a finite expected absolute loss, additionally assume a finite
+first moment (alternatively work with centered loss differences).
+\begin{align}
+ \ell_\theta(x)&=-|x-\theta|,\quad m=F^{-1}(1/2),\\
+ s_m(x)&=\operatorname{sign}(x-m)\quad(x\ne m),\\
+ M'(\theta)&=1-2F(\theta),\quad H=M''(m)=-2f(m),\\
+ \psi(x)&=\frac{\operatorname{sign}(x-m)}{2f(m)},\\
+ \sqrt n(\widehat m-m)&\xrightarrow{d}
+ N\left(0,\frac1{4f(m)^2}\right).
+\end{align}
+The local Lipschitz envelope is one. An observation equal to the target
+has probability zero, so its kink does not violate almost-everywhere
+differentiability at that target. A consistent density plug-in or a valid
+median bootstrap supplies uncertainty estimates.
+\begin{correctionbox}{Median maximization has negative curvature}
+Example 3.10 reverses the signs in the absolute-loss integrals, score,
+and Hessian. For negative absolute loss the population maximum has
+negative curvature. The displayed limiting variance in the lecture is
+nevertheless correct because the signs cancel when squared.
+\end{correctionbox}
+
+\subsection{Nonlinear least squares}
+Suppose the conditional mean model is correct, errors have conditional
+mean zero, and the needed differentiability and integrability hold:
+\begin{align}
+ Y&=m_{\theta^*}(X)+e,\quad \E[e\mid X]=0,\quad
+ g(X)=\nabla_\theta m_{\theta^*}(X),\\
+ \ell_\theta(X,Y)&=-\tfrac12(Y-m_\theta(X))^2,\\
+ s_{\theta^*}(X,Y)&=e\,g(X),\quad
+ A=\E[g(X)g(X)^{\mathsf T}],\quad H=-A,\\
+ B&=\E[e^2g(X)g(X)^{\mathsf T}],\quad
+ \Sigma=A^{-1}BA^{-1}.
+\end{align}
+Under constant conditional variance this reduces to sampling variance
+times the inverse of the Gram matrix. The half in the criterion ensures
+the displayed derivative has no factor two. Without it both the score
+and Hessian double, leaving the sandwich unchanged.
+\begin{correctionbox}{Curvature is not automatically Fisher information}
+Example 3.11 drops derivative factors and the negative curvature sign.
+The Gram matrix is not generally Fisher information for an arbitrary
+error law. A likelihood and error distribution are required to make that
+identification. The constant population criterion at the truth is negative
+one-half the error second moment with the convention used here.
+\end{correctionbox}
+
+\section{Influence functions and deletion diagnostics}
+\textit{Section 3.3.3, p. 3-12.}
+For the maximization convention,
+\begin{equation}
+ \widehat\theta_n-\theta^*=\frac1n\sum_i\psi(X_i)+o_P(n^{-1/2}),
+ \quad\psi(x)=-H^{-1}s_{\theta^*}(x).
+\end{equation}
+Large influence indicates sensitivity. For the corresponding linearized
+estimators, deleting one observation changes the average by
+\begin{equation}
+ \widehat\theta_n-\widehat\theta_{n,-k}
+ \approx\frac1n\left\{\psi(X_k)-\frac1{n-1}\sum_{i\ne k}\psi(X_i)\right\}.
+\end{equation}
+\begin{correctionbox}{The deletion effect has an inverse-sample-size factor}
+Section 3.3.3 omits this factor. The influence function describes a scaled
+first-order sensitivity. The ordinary asymptotic-linear remainder alone
+is too coarse to prove an inverse-sample-size deletion approximation;
+this interpretation requires additional smoothness or a direct deletion
+analysis. The displayed identity is exact for the linearized averages.
+\end{correctionbox}
+
+\section{Quadratic mean differentiability and LAN}
+\textit{Section 3.4, Theorems 3.13--3.14, pp. 3-12--3-17.}
+QMD is differentiability of the square-root density in the square-integrable
+function space with respect to a common dominating measure:
+\begin{equation}
+ \int\left[\sqrt{p_{\theta+h}}-\sqrt{p_\theta}
+ -\tfrac12h^{\mathsf T}s_\theta\sqrt{p_\theta}\right]^2d\mu
+ =o(\|h\|^2).
+\end{equation}
+The full-support formulation is essential when support changes. A formal
+pointwise derivative on the interior of the support is insufficient.
+QMD implies zero-mean square-integrable score under the model. In the
+normalized Hellinger convention of Lecture 2,
+\begin{equation}
+ H^2(P_{\theta+h},P_\theta)=\tfrac18h^{\mathsf T}I(\theta)h
+ +o(\|h\|^2).
+\end{equation}
+If Hellinger squared is defined without the one-half integral factor,
+the coefficient is one-quarter instead.
+
+For a uniform law on an interval with unknown right endpoint, a positive
+endpoint shift creates a new support interval whose square-root-density
+error is already first order in the shift:
+\begin{equation}
+ \int_\theta^{\theta+h}p_{\theta+h}(x)\,dx
+ =\frac{h}{\theta+h},\qquad h>0.
+\end{equation}
+Hence the model is not QMD at the usual root-sample-size scale. Indeed,
+the endpoint MLE is the sample maximum and has the nonnormal limit
+\begin{equation}
+ n(\theta-\max_iX_i)/\theta\xrightarrow{d}\operatorname{Exp}(1).
+\end{equation}
+This last limit is an editorial calculation: use the exact CDF of the maximum.
+
+For a correct QMD model, with bounded local vectors tending to a fixed
+vector, the LAN expansion under the target model is
+\begin{align}
+ \log\prod_i\frac{p_{\theta+h_n/\sqrt n}(X_i)}{p_\theta(X_i)}
+ &=h_n^{\mathsf T}\Delta_n-\tfrac12h_n^{\mathsf T}I(\theta)h_n+o_P(1),\\
+ \Delta_n&=\frac1{\sqrt n}\sum_i s_\theta(X_i)
+ \xrightarrow{d}N(0,I(\theta)).
+\end{align}
+For a consistent MLE with nonsingular information and the local
+log-likelihood Lipschitz condition of Theorem 3.14 (with an envelope having
+a finite second moment),
+\begin{equation}
+ \sqrt n(\widehat\theta_n-\theta_0)
+ =I(\theta_0)^{-1}\Delta_n+o_P(1)
+ \xrightarrow{d}N(0,I(\theta_0)^{-1}).
+\end{equation}
+\begin{correctionbox}{Hellinger, KL, and proof qualifications}
+The source switches Hellinger normalizations. Fixing the convention avoids
+a factor-two error. Its equation (3.11) equates the expected log-likelihood
+difference with minus twice an unnormalized Hellinger square; that is only
+a local second-order relation when an expected log-likelihood expansion
+is justified, not an exact identity. QMD controls square-root densities;
+passing a pointwise logarithm remainder through expectation requires more
+control. Use the LAN theorem and the full assumptions of Theorem 3.14,
+rather than treating that informal proof as valid from QMD alone.
+\end{correctionbox}
+
+\section{Many nuisance parameters: the missing-outcome example}
+\textit{Section 3.5, pp. 3-17--3-18.}
+Let there be many categories, with known observation probabilities bounded
+away from zero and one:
+\begin{align}
+ X&\sim\operatorname{Unif}\{1,\ldots,B\},\quad
+ R\mid X=b\sim\operatorname{Bernoulli}(\xi_b),\\
+ Y\mid X=b&\sim\operatorname{Bernoulli}(\theta_b),\quad
+ R\perp Y\mid X,\quad\delta\le\xi_b\le1-\delta,\\
+ \psi_B&=B^{-1}\sum_{b=1}^B\theta_b.
+\end{align}
+Only outcomes with indicator one are observed. In categories with observed
+outcomes, the MLE is the empirical success proportion; in empty categories
+the likelihood is flat. With far more categories than observations, most
+coordinates are unidentified by the observed likelihood and an arbitrary
+plug-in completion or independent prior can dominate the result.
+
+An inverse-probability estimator targets the functional directly:
+\begin{align}
+ Z_i&=R_iY_i/\xi_{X_i},\quad\widehat\psi_B=n^{-1}\sum_iZ_i,\\
+ \E Z_i&=B^{-1}\sum_b\theta_b=\psi_B,\quad
+ \E Z_i^2=B^{-1}\sum_b\theta_b/\xi_b\le1/\delta,\\
+ \Var(\widehat\psi_B)&\le1/(n\delta).
+\end{align}
+Chebyshev proves consistency even along growing-category sequences.
+A triangular-array CLT also gives asymptotic normality if the row variances
+converge to a positive limit; bounded summands verify Lindeberg. Without
+variance convergence there need not be a single fixed normal limit.
+\begin{correctionbox}{Interpret the failure claim in its asymptotic regime}
+With fixed finitely many categories and positive observation probabilities,
+every category is eventually observed and standard consistency can return.
+The difficulty is the growing or very large category regime, not a universal
+failure of every Bayesian prior or penalized estimator. A penalized MLE is
+a posterior mode for a matching penalty, not generally the posterior-mean
+Bayes rule. Estimating the average can succeed without recovering every
+coordinate.
+\end{correctionbox}
+
+\section{Computational learning: gradient descent}
+\textit{Appendix A, Theorem 3.17, pp. 3-19--3-21.}
+On a convex region suppose a differentiable objective has a Lipschitz
+gradient and a positive strong-convexity constant:
+\begin{align}
+ f(y)&\le f(x)+\nabla f(x)^{\mathsf T}(y-x)+\tfrac L2\|y-x\|^2,\\
+ f(y)&\ge f(x)+\nabla f(x)^{\mathsf T}(y-x)+\tfrac M2\|y-x\|^2.
+\end{align}
+When twice differentiable, these correspond to all Hessian eigenvalues
+between the two constants. Gradient descent updates
+\begin{equation}
+ \theta^{(t+1)}=\theta^{(t)}-\gamma\nabla f(\theta^{(t)}).
+\end{equation}
+For a stationary minimizer and a fixed step smaller than both reciprocal
+constants, the proof in the lecture yields
+\begin{equation}
+ \|\theta^{(t)}-\widehat\theta_n\|^2
+ \le(1-\gamma M)^t\|\theta^{(0)}-\widehat\theta_n\|^2.
+\end{equation}
+The argument expands the squared update, uses strong convexity to control
+the cross term, and smoothness to bound squared gradient by twice the
+smoothness constant times excess objective value. The remaining gradient
+term is nonpositive for the stated step size.
+
+\section{Transfer population curvature to the empirical objective}
+\textit{Appendix B, Lemmas 3.18--3.19 and Theorem 3.20, pp. 3-22--3-26.}
+For the negative population criterion, suppose the target Hessian has
+smallest eigenvalue bounded below by a positive constant and is locally
+Lipschitz in operator norm:
+\begin{equation}
+ \lambda_{\min}(\nabla^2R(\theta^*))=\lambda_*>0,\quad
+ \|\nabla^2R(\theta)-\nabla^2R(\theta^*)\|\le\phi\|\theta-\theta^*\|.
+\end{equation}
+Choose a ball lying in the interior of the parameter space, of radius at
+most the smallest eigenvalue divided by twice the Lipschitz constant.
+Weyl's eigenvalue inequality then ensures curvature at least half the
+target curvature throughout that ball.
+
+A compact Lipschitz-indexed class has a uniform LLN when its envelope of
+increments is integrable and one anchor function is integrable:
+\begin{equation}
+ |f_{\theta_1}(x)-f_{\theta_2}(x)|\le q(x)\|\theta_1-\theta_2\|,
+ \quad\E q(X)<\infty,\quad\E|f_{\theta_a}(X)|<\infty.
+\end{equation}
+A finite parameter net, ordinary LLN at its finitely many points, and a
+Lipschitz approximation bound prove this. Applying it to Hessian entries
+in fixed dimension yields uniform convergence in operator norm.
+
+On an event with probability tending to one, require all of the following:
+the empirical estimator is within half the population ball radius of the
+target; the uniform Hessian error is at most one-quarter the target
+curvature; and empirical Hessian norms are bounded by twice a finite
+population bound. Then in a ball around the empirical estimator,
+\begin{equation}
+ M^*=\lambda_*/4,\qquad L^*=2h_{\max},\qquad
+ \|\theta^{(t)}-\widehat\theta_n\|
+ \le(1-\gamma M^*)^{t/2}\|\theta^{(0)}-\widehat\theta_n\|.
+\end{equation}
+The contraction keeps iterates in the local ball if initialization lies
+there. There is no guarantee that an arbitrary initial point reaches this
+ball. The lecture's last proof uses the maximum-eigenvalue subscript in
+several lower bounds where the minimum-eigenvalue subscript is needed;
+the union bound must count each of its three events once.
+
+\subsection{Computational error versus statistical error}
+The two errors add by the triangle inequality:
+\begin{equation}
+ \|\theta^{(t)}-\theta^*\|
+ \le\|\theta^{(t)}-\widehat\theta_n\|
+ +\|\widehat\theta_n-\theta^*\|.
+\end{equation}
+A fixed contraction factor requires logarithmically many iterations in
+sample size to reach the statistical root-sample-size scale. To preserve
+the estimator's limiting distribution, require computational error to be
+smaller in probability than that scale, not merely bounded by it. This
+last comparison is an editorial synthesis of the two lecture appendices.
+
+\end{document}
