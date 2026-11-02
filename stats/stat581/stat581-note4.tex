@@ -31,23 +31,27 @@
 \DeclareMathOperator*{\argmin}{arg\,min}
 \title{STAT 581: M-estimation and Maximum Likelihood\\\large Notes 4: Handwritten MLE Derivations and Lecture Complements}
 \author{Liang-Cheng Chen}
-\date{October 28 handwriting; updated October 30, 2026}
+\date{Updated November 2, 2026}
 \newtcolorbox{gapbox}[1]{colback=cyan!4,colframe=cyan!50!black,title={Missing from original typed notes: #1},fonttitle=\bfseries,arc=2mm,boxrule=.6pt,breakable}
 \begin{document}
 \maketitle
 \begin{remarkbox}[Sources and editorial conventions]
-This volume integrates all five substantive pages of the October 28
-handwritten \texttt{../notes/stat581-note4.pdf}; page 6 is blank.
+\raggedright
+This volume integrates all fifteen substantive pages of the updated
+\texttt{../notes/stat581-note4.pdf}; page 16 is blank. Pages 1--5
+retain the October 28 material; pages 6--15 add the continuation supplied November 2
+(the handwritten date on p. 6 reads November 1).
 Sections on likelihood, consistency, smooth asymptotics, and sandwich
 inference incorporate that handwriting. Later sections retain the
 previously prepared complements from Yen-Chi Chen's \emph{Lecture 3:
 M-estimation and the maximum likelihood estimator}, pp. 3-1--3-26,
-including Appendices A--B. They extend beyond this five-page handwritten source.
+including Appendices A--B. The influence-function, QMD/LAN, nuisance-parameter, and optimization
+sections remain lecture supplements beyond this handwritten source.
 
 Gray boxes explain marginal questions, red boxes show corrections, and
-blue boxes supply additional arguments. No explicit TODO marker occurs
-in this new handwritten file. Handwritten M1--M3 labels below are local
-labels and differ from the numbering in lecture Theorem 3.1.
+blue boxes supply additional arguments. Yellow boxes preserve and answer
+the four explicit TODOs on handwritten pp. 7, 9, 10, and 15. Handwritten
+M1--M4 labels below are local labels and differ from the numbering in lecture Theorem 3.1.
 All mathematics uses equation or align environments.
 \end{remarkbox}
 \clearpage
@@ -269,6 +273,96 @@ The resulting covariance and influence function are
 The inverse transpose is required by the general covariance transformation;
 for a symmetric Hessian it equals the ordinary inverse.
 
+
+\subsection{Remainders, intermediate points, and integrability}
+\textit{Handwritten pp. 8--10; Lecture 3, Remark 3.2.}
+The handwritten M4 bounds absolute third derivatives on a neighborhood
+of the target by an integrable envelope. For a convex local neighborhood,
+write this as
+\begin{align}
+ \sup_{\theta\in U}\max_{j,k,l}
+ |\partial_j\partial_k\partial_l\ell_\theta(x)|&\le\Lambda(x),
+ &\E\Lambda(X)&<\infty.
+\end{align}
+In fixed dimension this gives the earlier remainder bound with a constant
+times the sample average of the envelope. An exact componentwise formula is
+\begin{equation}
+ R_{n,j}=\int_0^1(1-t)\sum_{k,l}
+ \partial_j\partial_k\partial_l M_n(\theta^*+th_n)
+ h_{n,k}h_{n,l}\,dt.
+\end{equation}
+The remainder includes two factors of the estimation error; it is not
+merely a third derivative. Absolute values are essential in the envelope.
+
+\begin{todobox}{Can second derivatives suffice in several dimensions? (p. 9)}
+Yes. The warning about a common intermediate point is correct, but the
+conclusion that third derivatives are necessary is not. Applying the
+scalar mean-value theorem along the parameter segment separately to each
+score coordinate gives
+\begin{align}
+ S_{n,j}(\widehat\theta_n)-S_{n,j}(\theta^*)
+ &=H_{n,j\cdot}(\widetilde\theta_{n,j})h_n,\\
+ \widetilde\theta_{n,j}&=\theta^*+t_{n,j}h_n,
+ \qquad 0<t_{n,j}<1.
+\end{align}
+These points generally differ across rows. Stack the rows into a matrix;
+it need not be a Hessian evaluated at any single point, or be symmetric.
+Local uniform Hessian convergence and continuity of the population Hessian
+still make that matrix converge to the target Hessian. Equivalently,
+use the integrated-Hessian identity already given. Twice continuously
+differentiable log-likelihoods with a local integrable Hessian envelope
+provide a useful sufficient setting, together with the other normality
+assumptions. Consistency of the intermediate points alone does not justify
+a pointwise LLN at those random points; uniform control is needed.
+\end{todobox}
+\begin{conceptbox}{Why a common multivariate mean-value point can fail}
+Even a gradient field need not have such a point. Consider a smooth function
+and its gradient along the horizontal unit segment:
+\begin{align}
+ f(x,y)&=x^3/3+x^3y,&F(x,y)&=\nabla f(x,y),\\
+ F(1,0)-F(0,0)&=(1,1)^{\mathsf T},&
+ DF(t,0)(1,0)^{\mathsf T}&=(2t,3t^2)^{\mathsf T}.
+\end{align}
+The first coordinate requires one-half, while the second requires the
+reciprocal square root of three. No single point satisfies both equations.
+The integral identity remains valid.
+\end{conceptbox}
+
+\begin{remarkbox}[Interior and compactness play different roles (p. 9)]
+An interior target and consistency put the relevant Taylor segment in a
+small open ball with probability tending to one. Global compactness is
+one convenient device for consistency and uniform laws; it is not needed
+for a local Taylor expansion. Compact parameter spaces also have boundaries.
+If the target is on a boundary, score equations and ordinary Gaussian
+limits can fail regardless of compactness.
+\end{remarkbox}
+
+\begin{todobox}{Can compactness and M4 replace Hessian integrability? (p. 10)}
+No, not by themselves. A derivative envelope controls changes from an
+anchor, rather than the random size of the Hessian at that anchor. On a
+convex bounded region one obtains
+\begin{equation}
+ |\partial_{jk}\ell_\theta(X)|
+ \le |\partial_{jk}\ell_{\theta_a}(X)|
+       +C_d\operatorname{diam}(\Theta)\Lambda(X).
+\end{equation}
+Thus one integrable Hessian anchor plus M4 implies an integrable Hessian
+envelope. Compactness supplies a finite diameter, but supplies no moment
+condition on that anchor. For a proper likelihood counterexample, let
+observed covariates be positive with infinite mean and, conditionally on
+such a covariate, use a normal response with mean equal to the parameter
+and variance the reciprocal of the covariate. Up to parameter-free terms,
+\begin{equation}
+ \ell_\theta(x,y)=-\tfrac{x}{2}(y-\theta)^2+c(x,y),\qquad
+ \partial_\theta^2\ell_\theta=-x,\qquad
+ \partial_\theta^3\ell_\theta=0.
+\end{equation}
+M4 holds with a zero envelope on a compact interval, but the expected
+absolute Hessian is infinite. Moreover, integrability and nonsingularity
+are separate requirements: a derivative envelope cannot ensure invertible
+curvature or identification. The earlier M3 cannot simply be dropped.
+\end{todobox}
+
 \subsection{Sandwich inference and correct specification}
 A consistent plug-in covariance for the scaled estimator is
 \begin{align}
@@ -319,14 +413,125 @@ In a misspecified model the sandwich is needed even when an inverse-Hessian
 formula is available computationally.
 \end{remarkbox}
 
+
+\subsection{Empirical bootstrap for inference}
+\textit{Handwritten pp. 6--7; Lecture 3, Remark 3.2.}
+Conditional on the observations, draw a sample of the original size with
+replacement from the empirical distribution, then refit the same criterion:
+\begin{align}
+ X_1^*,\ldots,X_n^*&\overset{\mathrm{IID}}\sim P_n,\\
+ \widehat\theta_n^*&\in\operatorname*{argmax}_{\theta\in\Theta}
+ \frac1n\sum_i\ell_\theta(X_i^*).
+\end{align}
+Repeat independently for a chosen number of replicates. This avoids
+explicit analytic score and Hessian evaluation, but requires repeated
+optimization. In a regular fixed-dimensional problem the conditional law
+of the centered bootstrap error consistently approximates the sampling law:
+\begin{equation}
+ \mathcal L^*\{\sqrt n(\widehat\theta_n^*-\widehat\theta_n)\}
+ \ \Longrightarrow_P\ N_d(0,\Sigma).
+\end{equation}
+Correct model specification is not required for a regular empirical
+bootstrap: resampling approximates the true data distribution, so it can
+recover the sandwich limit at the pseudo-true target. Moment consistency
+is additionally needed when estimating covariance from that limit.
+With independent replicates and sufficiently many of them, define
+\begin{align}
+ \overline\theta^*&=\frac1B\sum_{b=1}^B\widehat\theta_n^{*(b)},\\
+ C_B^*&=\frac1{B-1}\sum_{b=1}^B
+ (\widehat\theta_n^{*(b)}-\overline\theta^*)
+ (\widehat\theta_n^{*(b)}-\overline\theta^*)^{\mathsf T}.
+\end{align}
+This estimates the covariance of the unscaled estimator. The estimator of
+the asymptotic covariance is sample size times this matrix. A fixed number
+of replicates retains Monte Carlo error. A normal interval uses the square
+root of a diagonal entry of this matrix directly. Basic bootstrap intervals
+instead subtract conditional error quantiles from the fitted parameter;
+tests require an appropriate centered or studentized reference distribution.
+\begin{correctionbox}{Bootstrap covariance has a sample-size factor (p. 7)}
+The handwriting calls the raw replicate covariance an estimate of the
+scaled limiting covariance. It estimates that covariance divided by
+sample size. This distinction also applies to the lecture's informal
+bootstrap covariance description.
+\end{correctionbox}
+\begin{todobox}{Bootstrap and nonconvex parameter spaces (p. 7)}
+Nonconvexity alone does not imply bootstrap failure. If a unique interior
+target is separated from other components and refitting finds the correct
+optimum, the local problem can still be regular. Conversely, failure can
+occur in a convex space: estimate a nonnegative normal mean at a true mean
+of zero with unit observation variance. Then
+\begin{equation}
+ \widehat\theta_n=\max(0,\overline X_n),\qquad
+ \sqrt n\widehat\theta_n\xrightarrow{d}\max(0,Z),\qquad Z\sim N(0,1).
+\end{equation}
+The centered ordinary bootstrap has a random limiting shift because it
+refits near a random distance from the boundary. It need not reproduce the
+fixed target law. Here the ordinary unconstrained sandwich formula also
+fails to describe the constrained estimator: its normality assumptions
+are violated. Other failure mechanisms include multiple competing maxima,
+nonsmooth functionals, and unstable numerical refits. Neither method is
+automatically protected by the shape of the parameter space.
+\end{todobox}
+
 \section{Examples of empirical risk minimization}
-\textit{Examples 3.3--3.6, pp. 3-6--3-7.}
+\textit{Handwritten pp. 11--13; Lecture 3, Examples 3.3--3.5.}
+For a loss, empirical risk minimization targets the population minimizer:
+\begin{equation}
+ \widehat\theta_n\in\argmin_\theta R_n(\theta),\qquad
+ \theta^*\in\argmin_\theta R(\theta).
+\end{equation}
+MLE is the special case of negative log-likelihood. For a smooth loss,
+replace negative log-likelihood curvature by positive risk curvature:
+\begin{align}
+ A&=\E\nabla_\theta^2 L(\theta^*,X),\quad
+ V=\operatorname{Cov}\{\nabla_\theta L(\theta^*,X)\},\\
+ \sqrt n(\widehat\theta_n-\theta^*)&\xrightarrow{d}
+ N_d(0,A^{-1}VA^{-\mathsf T}).
+\end{align}
+This needs the same consistency, moment, invertibility, and local regularity
+conditions; being an ERM alone does not imply asymptotic normality.
+
+\subsection{Least squares, basis expansions, and learned features}
+Squared prediction loss and its empirical risk are
+\begin{equation}
+ L(\theta;x,y)=(m_\theta(x)-y)^2,\qquad
+ R_n(\theta)=\frac1n\sum_i(m_\theta(X_i)-Y_i)^2.
+\end{equation}
+A constant first feature supplies an intercept. For a scalar covariate,
+polynomials or other fixed basis functions give
+\begin{equation}
+ m_\theta(x)=\sum_{j=1}^q\theta_j\phi_j(x),\qquad
+ \phi_1(x)=1,\quad\phi_2(x)=x,\quad\phi_3(x)=x^2.
+\end{equation}
+An orthonormal basis is another option relative to a specified measure.
+Although nonlinear in the original covariate, this model is linear in
+its coefficients. A neural feature extractor followed by a regression
+head generalizes the same construction:
+\begin{align}
+ z_0&=x,\quad z_{r+1}=\sigma(W_rz_r+b_r),\\
+ \Phi_\eta(x)&=z_L,\qquad m_{\beta,\eta}(x)=\beta^{\mathsf T}\Phi_\eta(x).
+\end{align}
+\begin{remarkbox}[Is this feature engineering? (question on p. 12)]
+Yes, in the broad sense of constructing useful inputs for prediction.
+Fixed polynomials are manually chosen features; an autoencoder or neural
+network learns a representation. If the representation is trained on the
+same data, its randomness and dependence must be included in inference.
+Classical fixed-dimensional M-estimation is applicable only when its
+regularity assumptions hold for the full fitted problem. Growing neural
+networks, nonidentifiable weights, or nonsmooth activations require further
+analysis. A frozen externally trained representation is a simpler setting.
+\end{remarkbox}
 Least squares minimizes average squared residuals. For linear prediction,
 the population target is a best linear projection, even if the conditional
 mean is nonlinear:
 \begin{equation}
  \theta^*=\operatorname*{argmin}_\theta\E(Y-X^{\mathsf T}\theta)^2.
 \end{equation}
+\subsection{Classification and logistic loss}
+The handwritten classification extension can use a logistic head on fixed
+or learned features, with binary responses. For fixed features, the
+following loss derivatives give the smooth ERM score and curvature.
+
 Logistic regression uses the loss and probability
 \begin{align}
  q_\theta(x)&=(1+e^{-x^{\mathsf T}\theta})^{-1},\\
@@ -341,6 +546,8 @@ Classification with zero--one loss is also ERM, but the criterion is usually
 nondifferentiable, so ERM membership alone does not imply the classical
 smooth normality theorem applies.
 
+\subsection{Kernel density derivatives and mode bandwidths}
+\textit{Handwritten pp. 14--15; Lecture 3, Example 3.6.}
 For a kernel density estimate and its mode,
 \begin{align}
  \widehat p_h(x)&=\frac1{nh^d}\sum_iK((X_i-x)/h),\\
@@ -356,6 +563,78 @@ density, curvature, and bandwidth conditions the scale is
 The lecture's statement is a schematic rate. Centering instead at the true
 mode also requires controlling smoothing bias, often of order squared
 bandwidth under appropriate smoothness.
+
+
+For a univariate density and a symmetric probability kernel, use
+\begin{equation}
+ \widehat p_h(x)=\frac1{nh}\sum_iK((X_i-x)/h),\qquad
+ K(u)=\frac1{\sqrt{2\pi}}e^{-u^2/2}
+ \quad\text{for the Gaussian kernel}.
+\end{equation}
+With sufficient density smoothness and finite kernel second moment,
+the pointwise bias is of order squared bandwidth. For a square-integrable
+kernel and a continuous density at the evaluation point,
+\begin{align}
+ \E\widehat p_h(x)&=p(x)+\tfrac12h^2\mu_2(K)p''(x)+o(h^2),\\
+ \operatorname{Var}(\widehat p_h(x))
+ &=\frac{p(x)}{nh}\int K(u)^2\,du+o((nh)^{-1}),\\
+ \mu_2(K)&=\int u^2K(u)\,du.
+\end{align}
+\begin{correctionbox}{Density derivative versus data score (p. 15)}
+The derivative of a density is not its log-density score:
+\begin{equation}
+ g(x)=p'(x),\qquad s^{\mathrm{data}}(x)=p'(x)/p(x)\quad\text{when }p(x)>0.
+\end{equation}
+The handwritten derivative estimate targets the former. A log-density
+score estimate would divide by the density estimate and needs control
+where the density is small.
+\end{correctionbox}
+For a differentiable kernel with square-integrable derivative, and under
+sufficient smoothness for the bias expansion,
+\begin{align}
+ \widehat g_h(x)&=-\frac1{nh^2}\sum_iK'((X_i-x)/h),\\
+ \E\widehat g_h(x)&=p'(x)+\tfrac12h^2\mu_2(K)p'''(x)+o(h^2),\\
+ \operatorname{Var}(\widehat g_h(x))
+ &=\frac{p(x)}{nh^3}\int K'(u)^2\,du+o((nh^3)^{-1}).
+\end{align}
+Assume a unique separated interior mode, strictly negative second density
+derivative there, and a consistent local mode estimator. A derivative
+Taylor expansion and uniform local curvature convergence give
+\begin{equation}
+ \widehat m_h-m^*=-\frac{\widehat p_h'(m^*)}{p''(m^*)}
+ +o_P((nh^3)^{-1/2})
+\end{equation}
+when the bandwidth makes the derivative bias negligible on that scale.
+\begin{todobox}{What does a proper bandwidth speed mean? (p. 15)}
+Bandwidth must decrease to remove smoothing bias while leaving enough
+observations to estimate derivatives. One convenient sufficient rate
+regime in one dimension is
+\begin{equation}
+ h\to0,\qquad \frac{nh^5}{\log n}\to\infty,\qquad nh^7\to0.
+\end{equation}
+Under standard smoothness, bounded-kernel derivative and local uniform
+empirical-process conditions, the middle requirement ensures local
+second-derivative consistency; the last removes the first-derivative bias
+at its CLT scale. These rates supplement, rather than replace, mode
+separation and consistency assumptions. A power bandwidth has the useful
+range
+\begin{equation}
+ h=n^{-a},\qquad 1/7<a<1/5.
+\end{equation}
+Then a triangular-array derivative CLT and the mode expansion yield
+\begin{equation}
+ \sqrt{nh^3}(\widehat m_h-m^*)\xrightarrow{d}
+ N\left(0,\frac{p(m^*)\int K'(u)^2\,du}{[p''(m^*)]^2}\right).
+\end{equation}
+Indeed, the scaled bias is of order the square root of sample size times
+bandwidth to the seventh power. At the usual mode mean-squared-error
+balance with bandwidth proportional to sample size to power minus one
+seventh, that bias is generally nonzero in the limit. Centering at the
+smoothed population mode instead removes this bias term, subject to the
+corresponding local derivative conditions. Shrinking bandwidth creates a
+triangular-array problem, so the fixed-bandwidth M-estimator theorem alone
+cannot establish this result.
+\end{todobox}
 
 \section{Modern M-estimation: nonsmooth empirical criteria}
 \textit{Theorem 3.9, Examples 3.10--3.11, pp. 3-9--3-11.}

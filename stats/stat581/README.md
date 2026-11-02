@@ -9,7 +9,7 @@ English edited notes with corrected derivations, resolved handwritten TODOs, and
 | 3: Large Sample Theory and Distributional Distances | [PDF](stat581-note3.pdf) | [LaTeX](stat581-note3.tex) |
 | 4: M-estimation and Maximum Likelihood | [PDF](stat581-note4.pdf) | [LaTeX](stat581-note4.tex) |
 
-Updated October 30, 2026: Note 3 integrates the October 28 ratio-estimator continuation; Note 4 integrates the October 28 handwritten score/Taylor/sandwich derivation while retaining earlier Lecture 3 complements. [Source coverage and corrections](SOURCE-MAP.md).
+Updated November 2, 2026: Note 4 now covers all 15 substantive handwritten pages, adding bootstrap inference, remainder and assumption TODOs, learned-feature regression/classification, and KDE mode bandwidths. All four new TODOs are answered; prior Lecture 3 complements remain. Note 3 retains the October 28 ratio-estimator continuation. [Source coverage and corrections](SOURCE-MAP.md).
 
 Yellow boxes preserve and answer TODOs; red boxes explain corrections; blue boxes add concepts; gray boxes explain remarks. Cyan boxes in Note 3 record material recovered during the earlier teacher-source comparison. The seven distance diagrams are embedded vector TikZ figures.
 
